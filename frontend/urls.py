@@ -1,5 +1,18 @@
 from django.urls import path
 from django.views.generic import TemplateView
+from rest_framework import routers
+from .api import (ProductCategoryViewSet,
+                  ProductViewSet,
+                  TagViewSet,
+                  ProductLimitedViewSet)
+
+router = routers.DefaultRouter()
+router.register('api/categories', ProductCategoryViewSet)
+router.register('api/product', ProductViewSet)
+router.register('api/catalog', ProductViewSet)
+router.register('api/tags', TagViewSet)
+router.register('api/products/limited', ProductLimitedViewSet)
+
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name="frontend/index.html")),
@@ -19,4 +32,4 @@ urlpatterns = [
     path('sale/', TemplateView.as_view(template_name="frontend/sale.html")),
     path('sign-in/', TemplateView.as_view(template_name="frontend/signIn.html")),
     path('sign-up/', TemplateView.as_view(template_name="frontend/signUp.html")),
-]
+] + router.urls
