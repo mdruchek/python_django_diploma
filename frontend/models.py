@@ -2,9 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class ProductSubcategory(models.Model):
+    title = models.CharField(max_length=100, verbose_name='Категория товара')
+    is_active = models.BooleanField(default='True', verbose_name='Активна')
+
+
 class ProductCategory(models.Model):
     title = models.CharField(max_length=100, verbose_name='Категория товара')
     is_active = models.BooleanField(default='True', verbose_name='Активна')
+    subcategories = models.ForeignKey(ProductSubcategory, on_delete=models.CASCADE, verbose_name='Подкатегория')
 
     def __str__(self):
         return self.title

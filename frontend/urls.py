@@ -2,11 +2,13 @@ from django.urls import path
 from django.views.generic import TemplateView
 from rest_framework import routers
 from .api import (ProductCategoryViewSet,
+                  ProductSubcategoryViewSet,
                   ProductViewSet,
                   TagViewSet,
                   ProductLimitedViewSet)
 
 router = routers.DefaultRouter()
+router.register('api/subcategories', ProductSubcategoryViewSet)
 router.register('api/categories', ProductCategoryViewSet)
 router.register('api/product', ProductViewSet)
 router.register('api/catalog', ProductViewSet)

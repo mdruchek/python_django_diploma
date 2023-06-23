@@ -1,14 +1,21 @@
 from rest_framework import viewsets
 from .serializers import (ProductCategorySerializer,
+                          ProductSubcategorySerializer,
                           ProductSerializer,
                           TagSerializer)
 from .models import (ProductCategory,
+                     ProductSubcategory,
                      Product,
                      Tag)
 
 
+class ProductSubcategoryViewSet(viewsets.ModelViewSet):
+    queryset = ProductSubcategory.objects.all()
+    serializer_class = ProductSubcategorySerializer
+
+
 class ProductCategoryViewSet(viewsets.ModelViewSet):
-    queryset = ProductCategory.objects.all()
+    queryset = ProductCategory.objects.select_related('subcategories').all()
     serializer_class = ProductCategorySerializer
 
 
