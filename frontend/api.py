@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from  rest_framework.response import Response
+from rest_framework.views import APIView
 from .serializers import (ProductCategorySerializer,
                           ProductSubcategorySerializer,
                           ProductSerializer,
@@ -9,9 +11,14 @@ from .models import (ProductCategory,
                      Tag)
 
 
-class ProductSubcategoryViewSet(viewsets.ModelViewSet):
-    queryset = ProductSubcategory.objects.all()
-    serializer_class = ProductSubcategorySerializer
+class ProductCategoryListView(APIView):
+    def get(self, request):
+        categories = ProductCategory.objects.all()
+        data = [{"id": category.id,
+                 "title": category.title,
+                 "subcategories": [{"id": subcategory.id,
+                                    "title": subcategory.title} for subcategory in category.productsubcategory_set.all()]} for category in categories]
+        return Response(data)
 
 
 class ProductCategoryViewSet(viewsets.ModelViewSet):
