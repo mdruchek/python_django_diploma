@@ -5,22 +5,31 @@ from .models import (ProductCategory,
                      Tag)
 
 
-class ProductSubcategorySerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ProductSubcategory
-        fields = ['id', 'title']
+# class ProductSubcategorySerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = ProductSubcategory
+#         fields = ['id', 'title']
+#
+#
+# class ProductCategorySerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = ProductCategory
+#         fields = ['id', 'title', 'subcategories']
 
 
-class ProductCategorySerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ProductCategory
-        fields = ['id', 'title', 'subcategories']
-
-
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Product
-        fields = ['id', 'price', 'count', 'date', 'title', 'category']
+# class ProductSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = Product
+#         fields = ['id',
+#                   'category',
+#                   'price',
+#                   'count',
+#                   'date',
+#                   'title',
+#                   'description',
+#                   'fullDescription',
+#                   'freeDelivery',
+#                   'tags']
 
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):

@@ -39,9 +39,12 @@ class Tag(models.Model):
 
 
 class Product(models.Model):
+    category = models.ForeignKey(ProductSubcategory, on_delete=models.CASCADE, verbose_name='Подкатегория')
     price = models.FloatField(verbose_name='Стоимость')
     count = models.IntegerField(verbose_name='Количество')
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
     title = models.CharField(max_length=100, verbose_name='Наименование')
-    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, verbose_name='Категория')
+    description = models.CharField(max_length=500, verbose_name='Описание')
+    fullDescription = models.TextField(max_length=1000, verbose_name='Полное описание')
+    freeDelivery = models.BooleanField(default=False, verbose_name='Бесплатная доставка')
     tags = models.ManyToManyField(Tag, verbose_name='Tags')
