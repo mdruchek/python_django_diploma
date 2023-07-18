@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class q(models.Model):
+class ImageDepartments(models.Model):
     src = models.ImageField(verbose_name='Путь')
     alt = models.CharField(max_length=50, verbose_name='Описание')
 
