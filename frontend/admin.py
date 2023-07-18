@@ -3,7 +3,8 @@ from .models import (ProductCategory,
                      ProductSubcategory,
                      UserRole,
                      Product,
-                     Tag)
+                     Tag,
+                     ImageDepartments)
 
 
 @admin.register(ProductSubcategory)
@@ -28,4 +29,9 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ImageDepartments)
+class ImageDepartments(admin.ModelAdmin):
     pass

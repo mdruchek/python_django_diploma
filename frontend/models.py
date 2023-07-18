@@ -2,9 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class q(models.Model):
+    src = models.ImageField(verbose_name='Путь')
+    alt = models.CharField(max_length=50, verbose_name='Описание')
+
+
 class ProductCategory(models.Model):
     title = models.CharField(max_length=100, verbose_name='Категория товара')
     is_active = models.BooleanField(default='True', verbose_name='Активна')
+    image = models.ForeignKey(ImageDepartments, on_delete=models.PROTECT, verbose_name='Иконка')
 
     def __str__(self):
         return self.title

@@ -6,6 +6,7 @@ from .api import (ProductCategoryListView,
                   CatalogListView,
                   TagViewSet)
 
+
 router = routers.DefaultRouter()
 router.register('api/tags', TagViewSet)
 # router.register('api/products/limited', ProductLimitedViewSet)

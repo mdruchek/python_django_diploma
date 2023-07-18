@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from  rest_framework.response import Response
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import (TagSerializer)
 from .models import (ProductCategory,
@@ -13,8 +13,16 @@ class ProductCategoryListView(APIView):
         categories = ProductCategory.objects.all()
         data = [{"id": category.id,
                  "title": category.title,
+                 "image": {
+                     "src": category.image.src,
+                     "alt": category.image.alt
+                 },
                  "subcategories": [{"id": subcategory.id,
-                                    "title": subcategory.title} for subcategory in category.productsubcategory_set.all()]} for category in categories]
+                                    "title": subcategory.title,
+                                    "image": {
+                                        "src": "/3.png",
+                                        "alt": "Image alt string"
+                                    }} for subcategory in category.productsubcategory_set.all()]} for category in categories]
         return Response(data)
 
 
@@ -48,7 +56,7 @@ class CatalogListView(APIView):
                         "description": product.description,
                         "freeDelivery": product.freeDelivery,
                         "tags": [{"id": tag.id,
-                                  "name": tag.name} for tag in product.tags]} for product in products],
+                                  "name": tag.name} for tag in product.tags.all()]} for product in products],
             "currentPage": 1,
             "lastPage": 1
         }
