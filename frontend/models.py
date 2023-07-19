@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 
 class ImageDepartments(models.Model):
-    src = models.ImageField(verbose_name='Путь')
+    src = models.CharField(max_length=500, verbose_name='Путь')
     alt = models.CharField(max_length=50, verbose_name='Описание')
 
 
@@ -54,3 +54,8 @@ class Product(models.Model):
     fullDescription = models.TextField(max_length=1000, verbose_name='Полное описание')
     freeDelivery = models.BooleanField(default=False, verbose_name='Бесплатная доставка')
     tags = models.ManyToManyField(Tag, verbose_name='Tags')
+
+
+class ImagesProducts(models.Model):
+    image = models.ImageField(upload_to='sale/', verbose_name='Фото товара')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар')
