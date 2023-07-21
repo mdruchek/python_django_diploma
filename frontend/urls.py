@@ -4,7 +4,10 @@ from rest_framework import routers
 from .api import (ProductCategoryListView,
                   ProductDetailView,
                   CatalogListView,
-                  TagViewSet)
+                  TagViewSet,
+                  ProductLimitedListView,
+                  sign_in
+                  )
 
 
 router = routers.DefaultRouter()
@@ -30,7 +33,9 @@ urlpatterns = [
     path('sale/', TemplateView.as_view(template_name="frontend/sale.html")),
     path('sign-in/', TemplateView.as_view(template_name="frontend/signIn.html")),
     path('sign-up/', TemplateView.as_view(template_name="frontend/signUp.html")),
-    path('api/categories/', ProductCategoryListView.as_view(), name='categories'),
-    path('api/product/<int:id>/', ProductDetailView.as_view(), name='product'),
-    path('api/catalog/', CatalogListView.as_view(), name='catalog'),
+    path('api/categories/', ProductCategoryListView.as_view()),
+    path('api/product/<int:id>/', ProductDetailView.as_view()),
+    path('api/catalog/', CatalogListView.as_view()),
+    path('api/products/limited/', ProductLimitedListView.as_view()),
+    path('api/sign-in/', sign_in),
 ] + router.urls

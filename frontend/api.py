@@ -1,9 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework.views import APIView
+from django.http import HttpRequest, HttpResponse
 from .serializers import (TagSerializer)
 from .models import (ProductCategory,
-                     ProductSubcategory,
                      Product,
                      Tag)
 import re
@@ -41,7 +42,8 @@ class ProductDetailView(APIView):
             "description": product.description,
             "fullDescription": product.fullDescription,
             "freeDelivery": product.freeDelivery,
-            "images": [re.search(r'/static/.*', image.image.path).group() for image in product.imagesproducts_set.all()],
+            "images": [{'src': re.search(r'/static/.*', image.image.path).group(),
+                        'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
             "tags": [
                 "string"
             ],
@@ -93,21 +95,36 @@ class CatalogListView(APIView):
         return Response(data)
 
 
-# class ProductCategoryViewSet(viewsets.ModelViewSet):
-#     queryset = ProductCategory.objects.select_related('subcategories').all()
-#     serializer_class = ProductCategorySerializer
-
-
-# class ProductViewSet(viewsets.ModelViewSet):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-
-
-# class ProductLimitedViewSet(viewsets.ModelViewSet):
-#     queryset = Product.objects.filter(count__lt=10)
-#     serializer_class = ProductSerializer
+class ProductLimitedListView(APIView):
+    def get(self, request):
+        products = Product.objects.filter(count__lte=5)
+        data = [{
+                "id": product.id,
+                "category": product.category.id,
+                "price": product.price,
+                "count": product.count,
+                "date": product.date,
+                "title": product.title,
+                "description": product.description,
+                "freeDelivery": product.freeDelivery,
+                "images": [{'src': re.search(r'/static/.*', image.image.path).group(),
+                            'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
+                "tags": [{
+                    "id": tag.id,
+                    "name": tag.name
+                } for tag in product.tags.all()],
+                "reviews": 5,
+                "rating": 4.6
+                } for product in products]
+        return Response(data)
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+
+
+def sign_in(request: Request):
+        print(request.POST)
+        return HttpResponse('')
+
