@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.request import Request
@@ -12,7 +14,6 @@ import re
 
 class ProductCategoryListView(APIView):
     def get(self, request):
-
         categories = ProductCategory.objects.all()
         data = [{"id": category.id,
                  "title": category.title,
@@ -25,7 +26,8 @@ class ProductCategoryListView(APIView):
                                     "image": {
                                         "src": "/static/frontend/assets/img/icons/departments/1.svg",
                                         "alt": "Image alt string"
-                                    }} for subcategory in category.productsubcategory_set.all()]} for category in categories]
+                                    }} for subcategory in category.productsubcategory_set.all()]} for category in
+                categories]
         return Response(data)
 
 
@@ -88,7 +90,7 @@ class CatalogListView(APIView):
                 } for tag in product.tags.all()],
                 "reviews": 5,
                 "rating": 4.6
-                } for product in products],
+            } for product in products],
             "currentPage": 1,
             "lastPage": 1
         }
@@ -99,23 +101,23 @@ class ProductLimitedListView(APIView):
     def get(self, request):
         products = Product.objects.filter(count__lte=5)
         data = [{
-                "id": product.id,
-                "category": product.category.id,
-                "price": product.price,
-                "count": product.count,
-                "date": product.date,
-                "title": product.title,
-                "description": product.description,
-                "freeDelivery": product.freeDelivery,
-                "images": [{'src': re.search(r'/static/.*', image.image.path).group(),
-                            'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
-                "tags": [{
-                    "id": tag.id,
-                    "name": tag.name
-                } for tag in product.tags.all()],
-                "reviews": 5,
-                "rating": 4.6
-                } for product in products]
+            "id": product.id,
+            "category": product.category.id,
+            "price": product.price,
+            "count": product.count,
+            "date": product.date,
+            "title": product.title,
+            "description": product.description,
+            "freeDelivery": product.freeDelivery,
+            "images": [{'src': re.search(r'/static/.*', image.image.path).group(),
+                        'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
+            "tags": [{
+                "id": tag.id,
+                "name": tag.name
+            } for tag in product.tags.all()],
+            "reviews": 5,
+            "rating": 4.6
+        } for product in products]
         return Response(data)
 
 
@@ -125,6 +127,6 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 def sign_in(request: Request):
-        print(request.POST)
-        return HttpResponse('')
-
+    data = json.loads(request.body)
+    print(data)
+    return HttpResponse('')
