@@ -57,7 +57,7 @@ class Product(models.Model):
 
 
 def image_product_directory_path(instance: 'ImagesProducts', filename: str) -> str:
-    return 'img/product_{pk}/{filename}'.format(pk=instance.product.primary_key, filename=filename)
+    return 'img/products/product_{pk}/{filename}'.format(pk=instance.product.pk, filename=filename)
 
 
 class ImagesProducts(models.Model):
