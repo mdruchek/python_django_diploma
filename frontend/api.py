@@ -44,7 +44,7 @@ class ProductDetailView(APIView):
             "description": product.description,
             "fullDescription": product.fullDescription,
             "freeDelivery": product.freeDelivery,
-            "images": [{'src': re.search(r'/static/.*', image.image.path).group(),
+            "images": [{'src': image.image.url,
                         'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
             "tags": [
                 "string"
@@ -82,7 +82,7 @@ class CatalogListView(APIView):
                 "title": product.title,
                 "description": product.description,
                 "freeDelivery": product.freeDelivery,
-                "images": [{'src': re.search(r'/static/.*', image.image.path).group(),
+                "images": [{'src': image.image.url,
                             'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
                 "tags": [{
                     "id": tag.id,
@@ -94,6 +94,7 @@ class CatalogListView(APIView):
             "currentPage": 1,
             "lastPage": 1
         }
+        print(data)
         return Response(data)
 
 
@@ -109,7 +110,7 @@ class ProductLimitedListView(APIView):
             "title": product.title,
             "description": product.description,
             "freeDelivery": product.freeDelivery,
-            "images": [{'src': re.search(r'/static/.*', image.image.path).group(),
+            "images": [{'src': image.image.url,
                         'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
             "tags": [{
                 "id": tag.id,
@@ -127,6 +128,18 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 def sign_in(request: Request):
+    data = json.loads(request.body)
+    print(data)
+    return HttpResponse('')
+
+
+def sign_out(request: Request):
+    data = json.loads(request.body)
+    print(data)
+    return HttpResponse('')
+
+
+def sign_up(request: Request):
     data = json.loads(request.body)
     print(data)
     return HttpResponse('')

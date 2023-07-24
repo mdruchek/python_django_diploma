@@ -56,6 +56,10 @@ class Product(models.Model):
     tags = models.ManyToManyField(Tag, verbose_name='Tags')
 
 
+def image_product_directory_path(instance: 'ImagesProducts', filename: str) -> str:
+    return 'img/product_{pk}/{filename}'.format(pk=instance.product.primary_key, filename=filename)
+
+
 class ImagesProducts(models.Model):
-    image = models.ImageField(upload_to='sale/', verbose_name='Фото товара')
+    image = models.ImageField(null=True, blank=True, upload_to=image_product_directory_path, verbose_name='Фото товара')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар')

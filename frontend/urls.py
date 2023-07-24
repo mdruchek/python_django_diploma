@@ -6,8 +6,9 @@ from .api import (ProductCategoryListView,
                   CatalogListView,
                   TagViewSet,
                   ProductLimitedListView,
-                  sign_in
-                  )
+                  sign_in,
+                  sign_out,
+                  sign_up)
 
 
 router = routers.DefaultRouter()
@@ -38,4 +39,6 @@ urlpatterns = [
     path('api/catalog/', CatalogListView.as_view()),
     path('api/products/limited/', ProductLimitedListView.as_view()),
     path('api/sign-in/', sign_in),
-] + router.urls
+    path('api/sign-out/', sign_out),
+    path('api/sign-up/', sign_out),
+]
