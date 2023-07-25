@@ -1,15 +1,16 @@
 import json
-
+from django.http import HttpRequest, HttpResponse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.admin import User
+from django.db import IntegrityError
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from django.http import HttpRequest, HttpResponse
 from .serializers import (TagSerializer)
 from .models import (ProductCategory,
                      Product,
                      Tag)
-import re
 
 
 class ProductCategoryListView(APIView):
@@ -129,17 +130,32 @@ class TagViewSet(viewsets.ModelViewSet):
 
 def sign_in(request: Request):
     data = json.loads(request.body)
-    print(data)
-    return HttpResponse('')
+    username = data['username']
+    password = data['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        login(request, user)
+        return HttpResponse(status=200)
+    return HttpResponse(status=404)
 
 
 def sign_out(request: Request):
-    data = json.loads(request.body)
-    print(data)
-    return HttpResponse('')
+    logout(request)
+    return HttpResponse(status=200)
 
 
-def sign_up(request: Request):
-    data = json.loads(request.body)
-    print(data)
-    return HttpResponse('')
+def sign_up(request: HttpRequest):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        name = data['username']
+        username = data['username']
+        password = data['password']
+        user = User(first_name=name, username=username)
+        user.set_password(password)
+        try:
+            user.save()
+        except IntegrityError:
+            return HttpResponse(status=401)
+        login(request, user)
+        return HttpResponse(status=201)
+

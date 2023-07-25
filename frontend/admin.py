@@ -23,9 +23,15 @@ class UserRoleAdmin(admin.ModelAdmin):
     pass
 
 
+class ImagesProductInLine(admin.StackedInline):
+    model = ImagesProducts
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    pass
+    inlines = [
+        ImagesProductInLine,
+    ]
 
 
 @admin.register(Tag)

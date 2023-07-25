@@ -40,5 +40,5 @@ urlpatterns = [
     path('api/products/limited/', ProductLimitedListView.as_view()),
     path('api/sign-in/', sign_in),
     path('api/sign-out/', sign_out),
-    path('api/sign-up/', sign_out),
+    path('api/sign-up/', sign_up),
 ]

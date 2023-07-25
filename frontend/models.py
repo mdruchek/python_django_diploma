@@ -63,3 +63,6 @@ def image_product_directory_path(instance: 'ImagesProducts', filename: str) -> s
 class ImagesProducts(models.Model):
     image = models.ImageField(null=True, blank=True, upload_to=image_product_directory_path, verbose_name='Фото товара')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар')
+
+    def __str__(self):
+        return self.image.name

@@ -138,4 +138,4 @@ dmypy.json
 .idea/
 dj_prg/
 .vscode/
-*media/
+#*media/
