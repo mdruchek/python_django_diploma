@@ -44,6 +44,6 @@ class ImageDepartments(admin.ModelAdmin):
     pass
 
 
-@admin.register(ImagesProducts)
-class ImagesProduct(admin.ModelAdmin):
-    pass
+# @admin.register(ImagesProducts)
+# class ImagesProduct(admin.ModelAdmin):
+#     pass

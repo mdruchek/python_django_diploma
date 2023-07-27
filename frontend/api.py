@@ -71,8 +71,13 @@ class ProductDetailView(APIView):
 
 
 class CatalogListView(APIView):
-    def get(self, request):
-        products = Product.objects.all()
+    def get(self, request, *args, **kwargs):
+        name = request.query_params['filter[name]']
+        min_price = request.query_params['filter[minPrice]']
+        max_price = request.query_params['filter[maxPrice]']
+        free_delivery = request.query_params['filter[freeDelivery]']
+        available = request.query_params['filter[available]']
+        products = Product.objects.filter(title__icontains=name, price__range=(min_price, max_price))
         data = {
             "items": [{
                 "id": product.id,
@@ -95,7 +100,6 @@ class CatalogListView(APIView):
             "currentPage": 1,
             "lastPage": 1
         }
-        print(data)
         return Response(data)
 
 
