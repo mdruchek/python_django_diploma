@@ -8,7 +8,9 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from .serializers import (TagSerializer)
-from .models import (ProductCategory,
+from .models import (UserProfile,
+                     UserRole,
+                     ProductCategory,
                      Product,
                      Tag)
 
@@ -27,7 +29,8 @@ class ProductCategoryListView(APIView):
                                     "image": {
                                         "src": "/static/frontend/assets/img/icons/departments/1.svg",
                                         "alt": "Image alt string"
-                                    }} for subcategory in category.productsubcategory_set.all()]} for category in
+                                    }} for subcategory in category.productsubcategory_set.all()]
+                 } for category in
                 categories]
         return Response(data)
 
@@ -71,13 +74,8 @@ class ProductDetailView(APIView):
 
 
 class CatalogListView(APIView):
-    def get(self, request, *args, **kwargs):
-        name = request.query_params['filter[name]']
-        min_price = request.query_params['filter[minPrice]']
-        max_price = request.query_params['filter[maxPrice]']
-        free_delivery = request.query_params['filter[freeDelivery]']
-        available = request.query_params['filter[available]']
-        products = Product.objects.filter(title__icontains=name, price__range=(min_price, max_price))
+    def get(self, request):
+        products = Product.objects.all()
         data = {
             "items": [{
                 "id": product.id,
@@ -127,20 +125,193 @@ class ProductLimitedListView(APIView):
         return Response(data)
 
 
+class ProductPopularListView(APIView):
+    def get(self, request):
+        # products = Product.objects.filter()
+        data = [{
+            "id": 123,
+            "category": 55,
+            "price": 500.67,
+            "count": 12,
+            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
+            "title": "video card",
+            "description": "description of the product",
+            "freeDelivery": True,
+            "images": [
+              {
+                "src": "/3.png",
+                "alt": "Image alt string"
+              }
+            ],
+            "tags": [
+              {
+                "id": 12,
+                "name": "Gaming"
+              }
+            ],
+            "reviews": 5,
+            "rating": 4.6
+        }]
+        return Response(data)
+
+
+class SalesListView(APIView):
+    def get(self, request):
+        data = {
+          "items": [
+            {
+              "id": "123",
+              "price": 500.67,
+              "salePrice": 200.67,
+              "dateFrom": "2023-05-08",
+              "dateTo": "2023-05-20",
+              "title": "video card",
+              "images": [
+                "string"
+              ]
+            }
+          ],
+          "currentPage": 5,
+          "lastPage": 10
+        }
+        return Response(data)
+
+
+class BannersListView(APIView):
+    def get(self, request):
+        data = [
+          {
+            "id": 123,
+            "category": 55,
+            "price": 500.67,
+            "count": 12,
+            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
+            "title": "video card",
+            "description": "description of the product",
+            "freeDelivery": True,
+            "images": [
+              {
+                "src": "/3.png",
+                "alt": "Image alt string"
+              }
+            ],
+            "tags": [
+              {
+                "id": 12,
+                "name": "Gaming"
+              }
+            ],
+            "reviews": 5,
+            "rating": 4.6
+          }
+        ]
+        return Response(data)
+
+
+class BasketListView(APIView):
+    def get(self, request):
+        data = [{
+          "id": 123,
+          "category": 55,
+          "price": 500.67,
+          "count": 12,
+          "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
+          "title": "video card",
+          "description": "description of the product",
+          "freeDelivery": True,
+          "images": [
+            {
+              "src": "/3.png",
+              "alt": "Image alt string"
+            }
+          ],
+          "tags": [
+            {
+              "id": 12,
+              "name": "Gaming"
+            }
+          ],
+          "reviews": 5,
+          "rating": 4.6
+        }]
+        return Response(data)
+
+    def post(self, request):
+        request_data = json.loads(request.body)
+        id_product = request_data['id']
+        count_product = request_data['count']
+        data = [{
+            "id": 123,
+            "category": 55,
+            "price": 500.67,
+            "count": 12,
+            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
+            "title": "video card",
+            "description": "description of the product",
+            "freeDelivery": True,
+            "images": [
+              {
+                "src": "/3.png",
+                "alt": "Image alt string"
+              }
+            ],
+            "tags": [
+              {
+                "id": 12,
+                "name": "Gaming"
+              }
+            ],
+            "reviews": 5,
+            "rating": 4.6
+          }]
+        return Response(data)
+
+    def delete(self, request):
+        request_data = json.loads(request.body)
+        id_product = request_data['id']
+        count_product = request_data['count']
+        data = [{
+            "id": 123,
+            "category": 55,
+            "price": 500.67,
+            "count": 12,
+            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
+            "title": "video card",
+            "description": "description of the product",
+            "freeDelivery": True,
+            "images": [
+              {
+                "src": "/3.png",
+                "alt": "Image alt string"
+              }
+            ],
+            "tags": [
+              {
+                "id": 12,
+                "name": "Gaming"
+              }
+            ],
+            "reviews": 5,
+            "rating": 4.6
+        }]
+        return Response(data)
+
+
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 
 def sign_in(request: Request):
-    data = json.loads(request.body)
-    username = data['username']
-    password = data['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        login(request, user)
-        return HttpResponse(status=200)
-    return HttpResponse(status=404)
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data['username']
+        password = data['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
 
 
 def sign_out(request: Request):
@@ -160,6 +331,7 @@ def sign_up(request: HttpRequest):
             user.save()
         except IntegrityError:
             return HttpResponse(status=401)
+        user_role = UserRole.objects.get(title='Покупатель')
+        UserProfile.objects.create(user=user, role=user_role)
         login(request, user)
         return HttpResponse(status=201)
-

@@ -6,6 +6,10 @@ from .api import (ProductCategoryListView,
                   CatalogListView,
                   TagViewSet,
                   ProductLimitedListView,
+                  ProductPopularListView,
+                  SalesListView,
+                  BannersListView,
+                  BasketListView,
                   sign_in,
                   sign_out,
                   sign_up)
@@ -13,7 +17,6 @@ from .api import (ProductCategoryListView,
 
 router = routers.DefaultRouter()
 router.register('api/tags', TagViewSet)
-# router.register('api/products/limited', ProductLimitedViewSet)
 
 
 urlpatterns = [
@@ -38,7 +41,13 @@ urlpatterns = [
     path('api/product/<int:id>/', ProductDetailView.as_view()),
     path('api/catalog/', CatalogListView.as_view()),
     path('api/products/limited/', ProductLimitedListView.as_view()),
+    path('api/products/popular/', ProductPopularListView.as_view()),
+    path('api/sales/', SalesListView.as_view()),
+    path('api/banners/', BannersListView.as_view()),
+    path('api/basket/', BasketListView.as_view()),
     path('api/sign-in/', sign_in),
     path('api/sign-out/', sign_out),
     path('api/sign-up/', sign_up),
 ]
+
+urlpatterns += router.urls
