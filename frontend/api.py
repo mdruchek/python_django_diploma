@@ -297,6 +297,164 @@ class BasketListView(APIView):
         return Response(data)
 
 
+class OrderListView(APIView):
+    def get(self, request):
+        data = [{
+            "id": 123,
+            "createdAt": "2023-05-05 12:12",
+            "fullName": "Annoying Orange",
+            "email": "no-reply@mail.ru",
+            "phone": "88002000600",
+            "deliveryType": "free",
+            "paymentType": "online",
+            "totalCost": 567.8,
+            "status": "accepted",
+            "city": "Moscow",
+            "address": "red square 1",
+            "products": [
+              {
+                "id": 123,
+                "category": 55,
+                "price": 500.67,
+                "count": 12,
+                "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
+                "title": "video card",
+                "description": "description of the product",
+                "freeDelivery": True,
+                "images": [
+                  {
+                    "src": "/3.png",
+                    "alt": "Image alt string"
+                  }
+                ],
+                "tags": [
+                  {
+                    "id": 12,
+                    "name": "Gaming"
+                  }
+                ],
+                "reviews": 5,
+                "rating": 4.6
+              }
+            ]
+        }]
+        return Response(data)
+
+    def post(self, request):
+        request_data = json.loads(request.body)
+        order_id = request_data['orderId']
+        data = [{
+            "id": 123,
+            "category": 55,
+            "price": 500.67,
+            "count": 12,
+            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
+            "title": "video card",
+            "description": "description of the product",
+            "freeDelivery": True,
+            "images": [
+              {
+                "src": "/3.png",
+                "alt": "Image alt string"
+              }
+            ],
+            "tags": [
+              {
+                "id": 12,
+                "name": "Gaming"
+              }
+            ],
+            "reviews": 5,
+            "rating": 4.6
+        }]
+
+
+class OrderDetailView(APIView):
+    def get(self, request, id):
+        data = {
+          "id": 123,
+          "createdAt": "2023-05-05 12:12",
+          "fullName": "Annoying Orange",
+          "email": "no-reply@mail.ru",
+          "phone": "88002000600",
+          "deliveryType": "free",
+          "paymentType": "online",
+          "totalCost": 567.8,
+          "status": "accepted",
+          "city": "Moscow",
+          "address": "red square 1",
+          "products": [
+            {
+              "id": 123,
+              "category": 55,
+              "price": 500.67,
+              "count": 12,
+              "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
+              "title": "video card",
+              "description": "description of the product",
+              "freeDelivery": True,
+              "images": [
+                {
+                  "src": "/3.png",
+                  "alt": "Image alt string"
+                }
+              ],
+              "tags": [
+                {
+                  "id": 12,
+                  "name": "Gaming"
+                }
+              ],
+              "reviews": 5,
+              "rating": 4.6
+            }
+          ]
+        }
+        return Response(data)
+
+    def post(self, id):
+        data = {
+          "id": 123,
+          "createdAt": "2023-05-05 12:12",
+          "fullName": "Annoying Orange",
+          "email": "no-reply@mail.ru",
+          "phone": "88002000600",
+          "deliveryType": "free",
+          "paymentType": "online",
+          "totalCost": 567.8,
+          "status": "accepted",
+          "city": "Moscow",
+          "address": "red square 1",
+          "products": [
+            {
+              "id": 123,
+              "category": 55,
+              "price": 500.67,
+              "count": 12,
+              "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
+              "title": "video card",
+              "description": "description of the product",
+              "freeDelivery": True,
+              "images": [
+                {
+                  "src": "/3.png",
+                  "alt": "Image alt string"
+                }
+              ],
+              "tags": [
+                {
+                  "id": 12,
+                  "name": "Gaming"
+                }
+              ],
+              "reviews": 5,
+              "rating": 4.6
+            }
+          ]
+        }
+        return Response(data)
+
+
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
