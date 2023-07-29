@@ -486,6 +486,20 @@ class ProfileApiView(APIView):
         return Response(date)
 
 
+class ProfilePasswordApiView(APIView):
+    def post(self, request):
+        return Response('')
+
+
+class ProfileAvatarApiView(APIView):
+    def post(self, request):
+        data = {
+          "src": "/3.png",
+          "alt": "Image alt string"
+        }
+        return Response(data)
+
+
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
