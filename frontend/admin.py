@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from .models import (ProductCategory,
-                     ProductSubcategory,
                      UserProfile,
                      UserRole,
                      Product,
@@ -10,20 +9,9 @@ from .models import (ProductCategory,
                      ImagesProducts)
 
 
-@admin.register(ProductSubcategory)
-class ProductSubcategoryAdmin(admin.ModelAdmin):
-    pass
-
-
-class ProductSubcategoryInline(admin.StackedInline):
-    model = ProductSubcategory
-
-
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
-    inlines = [
-        ProductSubcategoryInline,
-    ]
+    pass
 
 
 @admin.register(UserProfile)

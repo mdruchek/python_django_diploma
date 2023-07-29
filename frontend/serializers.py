@@ -1,8 +1,26 @@
 from rest_framework import serializers
 from .models import (ProductCategory,
-                     ProductSubcategory,
+                     ImageDepartments,
                      Product,
                      Tag)
+
+
+class ImageDepartmentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageDepartments
+        fields = ['src', 'alt']
+
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    image = ImageDepartmentsSerializer(read_only=True)
+
+    class Meta:
+        model = ProductCategory
+        fields = ['id', 'title', 'image', 'subcategories']
+
+    def to_representation(self, instance):
+        self.fields['subcategories'] = ProductCategorySerializer(many=True, read_only=True)
+        return super(ProductCategorySerializer, self).to_representation(instance)
 
 
 # class ProductSubcategorySerializer(serializers.HyperlinkedModelSerializer):

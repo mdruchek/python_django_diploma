@@ -16,25 +16,19 @@ class ImageDepartments(models.Model):
 
 class ProductCategory(models.Model):
     title = models.CharField(max_length=100, verbose_name='Категория товара')
+    parent = models.ForeignKey('self',
+                               models.DO_NOTHING,
+                               db_column='parent',
+                               related_name='subcategories',
+                               verbose_name='Родительская категория',
+                               blank=True,
+                               null=True)
     is_active = models.BooleanField(default='True', verbose_name='Активна')
     image = models.ForeignKey(ImageDepartments, on_delete=models.PROTECT, verbose_name='Иконка', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Категория продукта'
         verbose_name_plural = 'Категории товаров'
-
-    def __str__(self):
-        return self.title
-
-
-class ProductSubcategory(models.Model):
-    title = models.CharField(max_length=100, verbose_name='Категория товара')
-    is_active = models.BooleanField(default='True', verbose_name='Активна')
-    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, verbose_name='Категория', blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Подкатегория товара'
-        verbose_name_plural = 'Подкатегории товаров'
 
     def __str__(self):
         return self.title
@@ -80,7 +74,7 @@ class Tag(models.Model):
 
 
 class Product(models.Model):
-    category = models.ForeignKey(ProductSubcategory, on_delete=models.CASCADE, verbose_name='Подкатегория')
+    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, verbose_name='Категория')
     price = models.FloatField(verbose_name='Стоимость')
     count = models.IntegerField(verbose_name='Количество')
     date = models.DateTimeField(auto_now_add=True, verbose_name='Создан')

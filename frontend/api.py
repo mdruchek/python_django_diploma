@@ -4,10 +4,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.admin import User
 from django.db import IntegrityError
 from rest_framework import viewsets
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from .serializers import (TagSerializer)
+from .serializers import (TagSerializer, ProductCategorySerializer)
 from .models import (UserProfile,
                      UserRole,
                      ProductCategory,
@@ -15,24 +16,9 @@ from .models import (UserProfile,
                      Tag)
 
 
-class ProductCategoryListApiView(APIView):
-    def get(self, request):
-        categories = ProductCategory.objects.all()
-        data = [{"id": category.id,
-                 "title": category.title,
-                 "image": {
-                     "src": category.image.src,
-                     "alt": category.image.alt
-                 },
-                 "subcategories": [{"id": subcategory.id,
-                                    "title": subcategory.title,
-                                    "image": {
-                                        "src": "/static/frontend/assets/img/icons/departments/1.svg",
-                                        "alt": "Image alt string"
-                                    }} for subcategory in category.productsubcategory_set.all()]
-                 } for category in
-                categories]
-        return Response(data)
+class ProductCategoryListApiView(ListAPIView):
+    queryset = ProductCategory.objects.filter(parent__isnull=True)
+    serializer_class = ProductCategorySerializer
 
 
 class ProductDetailApiView(APIView):
