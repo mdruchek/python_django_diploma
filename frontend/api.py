@@ -455,6 +455,11 @@ class OrderDetailView(APIView):
         return Response(data)
 
 
+class PaymentView(APIView):
+    def post(self, request):
+        pass
+
+
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
