@@ -15,7 +15,7 @@ from .models import (UserProfile,
                      Tag)
 
 
-class ProductCategoryListView(APIView):
+class ProductCategoryListApiView(APIView):
     def get(self, request):
         categories = ProductCategory.objects.all()
         data = [{"id": category.id,
@@ -35,7 +35,7 @@ class ProductCategoryListView(APIView):
         return Response(data)
 
 
-class ProductDetailView(APIView):
+class ProductDetailApiView(APIView):
     def get(self, request, id):
         product = Product.objects.get(id=id)
         data = {
@@ -73,7 +73,7 @@ class ProductDetailView(APIView):
         return Response(data)
 
 
-class CatalogListView(APIView):
+class CatalogListApiView(APIView):
     def get(self, request):
         products = Product.objects.all()
         data = {
@@ -101,7 +101,7 @@ class CatalogListView(APIView):
         return Response(data)
 
 
-class ProductLimitedListView(APIView):
+class ProductLimitedListApiView(APIView):
     def get(self, request):
         products = Product.objects.filter(count__lte=5)
         data = [{
@@ -125,7 +125,7 @@ class ProductLimitedListView(APIView):
         return Response(data)
 
 
-class ProductPopularListView(APIView):
+class ProductPopularListApiView(APIView):
     def get(self, request):
         # products = Product.objects.filter()
         data = [{
@@ -155,7 +155,7 @@ class ProductPopularListView(APIView):
         return Response(data)
 
 
-class SalesListView(APIView):
+class SalesListApiView(APIView):
     def get(self, request):
         data = {
           "items": [
@@ -177,7 +177,7 @@ class SalesListView(APIView):
         return Response(data)
 
 
-class BannersListView(APIView):
+class BannersListApiView(APIView):
     def get(self, request):
         data = [
           {
@@ -208,7 +208,7 @@ class BannersListView(APIView):
         return Response(data)
 
 
-class BasketListView(APIView):
+class BasketListApiView(APIView):
     def get(self, request):
         data = [{
           "id": 123,
@@ -297,7 +297,7 @@ class BasketListView(APIView):
         return Response(data)
 
 
-class OrderListView(APIView):
+class OrderListApiView(APIView):
     def get(self, request):
         data = [{
             "id": 123,
@@ -369,7 +369,7 @@ class OrderListView(APIView):
         }]
 
 
-class OrderDetailView(APIView):
+class OrderDetailApiView(APIView):
     def get(self, request, id):
         data = {
           "id": 123,
@@ -455,9 +455,35 @@ class OrderDetailView(APIView):
         return Response(data)
 
 
-class PaymentView(APIView):
+class PaymentApiView(APIView):
     def post(self, request):
         pass
+
+
+class ProfileApiView(APIView):
+    def get(self, request):
+        date = {
+          "fullName": "Annoying Orange",
+          "email": "no-reply@mail.ru",
+          "phone": "88002000600",
+          "avatar": {
+            "src": "/3.png",
+            "alt": "Image alt string"
+          }
+        }
+        return Response(date)
+
+    def post(self, request):
+        date = {
+          "fullName": "Annoying Orange",
+          "email": "no-reply@mail.ru",
+          "phone": "88002000600",
+          "avatar": {
+            "src": "/3.png",
+            "alt": "Image alt string"
+          }
+        }
+        return Response(date)
 
 
 class TagViewSet(viewsets.ModelViewSet):
