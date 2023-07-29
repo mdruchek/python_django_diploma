@@ -7,6 +7,7 @@ from .models import (ProductCategory,
                      Tag,
                      ImageDepartments,
                      ImagesProducts)
+from .admin_mixins import ExportAsCSVMixin
 
 
 @admin.register(ProductCategory)
@@ -33,7 +34,10 @@ class ImagesProductInLine(admin.StackedInline):
 
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
+    actions = [
+        'export_csv',
+    ]
     list_display = ['title', 'price']
     inlines = [
         ImagesProductInLine,
