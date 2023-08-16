@@ -139,3 +139,5 @@ dmypy.json
 dj_prg/
 .vscode/
 #*media/
+
+db.sqlite3

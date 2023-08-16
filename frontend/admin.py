@@ -18,6 +18,7 @@ from .models import (ProductCategory,
                      Tag,
                      ImageDepartments,
                      ImagesProducts)
+
 from .forms import CSVImportForms
 from .admin_mixins import ExportAsCSVMixin
 
