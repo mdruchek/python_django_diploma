@@ -86,7 +86,7 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
         for product in products:
             default_icon = Path(PurePath(settings.settings.MEDIA_ROOT, 'img','products', 'default_icon_product.jpg'))
 
-            img_product: ImagesProducts = ImagesProducts.objects.create()
+            img_product: ImagesProducts = ImagesProducts()
 
             with default_icon.open(mode='rb') as f:
                 img_product.image = File(f, name=default_icon.name)
