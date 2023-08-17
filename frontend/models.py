@@ -45,10 +45,19 @@ class UserRole(models.Model):
         return self.title
 
 
+class UserAvatar(models.Model):
+    src = models.ImageField(verbose_name='Аватар')
+    alt = models.CharField(verbose_name='Описание', max_length=50, default='User avatar')
+
+    class Meta:
+        verbose_name = 'Аватарка пользователя'
+        verbose_name_plural = 'Аватарки пользователей'
+
+
 class UserProfile(models.Model):
     patronymic = models.CharField(max_length=50, verbose_name='Отчество', blank=True)
     phone = models.CharField(max_length=12, verbose_name='Номер телефона', blank=True)
-    avatar = models.ImageField(verbose_name='Аватарка', blank=True)
+    avatar = models.OneToOneField(UserAvatar, blank=True, null=True, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Пользователь')
     role = models.ForeignKey(UserRole, on_delete=models.CASCADE, verbose_name='Роль пользователя')
 
