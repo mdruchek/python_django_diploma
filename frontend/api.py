@@ -3,6 +3,7 @@ from django.http import HttpRequest, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.admin import User
 from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
@@ -10,6 +11,7 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 from .serializers import (TagSerializer, ProductCategorySerializer)
 from .models import (UserProfile,
+                     UserAvatar,
                      UserRole,
                      ProductCategory,
                      Product,
@@ -36,9 +38,10 @@ class ProductDetailApiView(APIView):
             "freeDelivery": product.freeDelivery,
             "images": [{'src': image.image.url,
                         'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
-            "tags": [
-                "string"
-            ],
+            "tags": [{
+                    "id": tag.id,
+                    "name": tag.name
+            } for tag in product.tags.all()],
             "reviews": [
                 {
                     "author": "Annoying Orange",
@@ -448,28 +451,53 @@ class PaymentApiView(APIView):
 
 class ProfileApiView(APIView):
     def get(self, request):
-        date = {
-          "fullName": "Annoying Orange",
-          "email": "no-reply@mail.ru",
-          "phone": "88002000600",
+        data = {
+          "fullName": '{last_name} {first_name} {patronymic}'.format(last_name=request.user.last_name,
+                                                                     first_name=request.user.first_name,
+                                                                     patronymic=request.user.userprofile.patronymic),
+          "email": request.user.email,
+          "phone": request.user.userprofile.phone,
           "avatar": {
-            "src": "/3.png",
+            "src": request.user.useravatar.src.url,
             "alt": "Image alt string"
           }
         }
-        return Response(date)
+        return Response(data)
 
     def post(self, request):
-        date = {
-          "fullName": "Annoying Orange",
-          "email": "no-reply@mail.ru",
-          "phone": "88002000600",
+        data_request = request.data
+
+        full_name_list = data_request['fullName'].split()
+        last_name, first_name, patronymic = '', '', ''
+        if len(full_name_list) == 3:
+            last_name, first_name, patronymic = full_name_list
+        elif len(full_name_list) == 2:
+            last_name, first_name = full_name_list
+        elif len(full_name_list) == 1:
+            first_name = full_name_list[0]
+
+        user = User.objects.filter(id=request.user.id)
+        user_profile = UserProfile.objects.filter(user=request.user)
+
+        user.update(first_name=first_name, last_name=last_name, email=data_request['email'])
+
+        user_profile.update(phone=data_request['phone'], patronymic=patronymic)
+
+        user = User.objects.filter(id=request.user.id)
+        user_profile = UserProfile.objects.filter(user=request.user)
+
+        data_response = {
+          "fullName": '{last_name} {first_name} {patronymic}'.format(last_name=user[0].last_name,
+                                                                     first_name=user[0].first_name,
+                                                                     patronymic=user_profile[0].patronymic),
+          "email": user[0].email,
+          "phone": user_profile[0].phone,
           "avatar": {
-            "src": "/3.png",
+            "src": request.user.useravatar.src.url,
             "alt": "Image alt string"
           }
         }
-        return Response(date)
+        return Response(data_response)
 
 
 class ProfilePasswordApiView(APIView):
@@ -479,8 +507,13 @@ class ProfilePasswordApiView(APIView):
 
 class ProfileAvatarApiView(APIView):
     def post(self, request):
+        avatar = request.data['avatar']
+        user_avatar, created = UserAvatar.objects.update_or_create(
+            user=request.user,
+            defaults={'src': avatar, 'alt': "Image alt string"}
+        )
         data = {
-          "src": "/3.png",
+          "src": user_avatar.src.url,
           "alt": "Image alt string"
         }
         return Response(data)
@@ -516,6 +549,10 @@ def sign_up(request: HttpRequest):
         password = data['password']
         user = User(first_name=name, username=username)
         user.set_password(password)
+        try:
+            user.full_clean()
+        except ValidationError:
+            return HttpResponse(status=401)
         try:
             user.save()
         except IntegrityError:

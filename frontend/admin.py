@@ -14,6 +14,7 @@ import settings.settings
 from .models import (ProductCategory,
                      UserProfile,
                      UserRole,
+                     UserAvatar,
                      Product,
                      Tag,
                      ImageDepartments,
@@ -39,6 +40,11 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(UserRole)
 class UserRoleAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(UserAvatar)
+class UserAvatarAdmin(admin.ModelAdmin):
     pass
 
 
@@ -84,7 +90,7 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
         products = Product.objects.bulk_create(products)
 
         for product in products:
-            default_icon = Path(PurePath(settings.settings.MEDIA_ROOT, 'img','products', 'default_icon_product.jpg'))
+            default_icon = Path(PurePath(settings.settings.MEDIA_ROOT, 'img', 'products', 'default_icon_product.jpg'))
 
             img_product: ImagesProducts = ImagesProducts()
 
