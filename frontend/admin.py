@@ -16,6 +16,7 @@ from .models import (ProductCategory,
                      UserRole,
                      UserAvatar,
                      Product,
+                     SpecificationProduct,
                      Tag,
                      ImageDepartments,
                      ImagesProducts)
@@ -52,6 +53,10 @@ class ImagesProductInLine(admin.StackedInline):
     model = ImagesProducts
 
 
+class SpecificationProductInLine(admin.StackedInline):
+    model = SpecificationProduct
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
     change_list_template = "frontend/products_changelist.html"
@@ -61,6 +66,7 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
     list_display = ['title', 'price']
     inlines = [
         ImagesProductInLine,
+        SpecificationProductInLine
     ]
 
     def import_csv(self, request: HttpRequest) -> HttpResponse:

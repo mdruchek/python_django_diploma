@@ -17,6 +17,7 @@ from .models import (UserProfile,
                      ProductCategory,
                      Product,
                      ReviewProduct,
+                     SpecificationProduct,
                      Tag)
 
 
@@ -55,14 +56,10 @@ class ProductDetailApiView(APIView):
                 } for review in reviews_product],
             "specifications": [
                 {
-                    "name": "Size",
-                    "value": "XL"
-                }],
-                    # "name": specification.get('name'),
-                    # "value": specification.get('value')
-                # } for specification in product.specifications],
-            # "rating": reviews_product.aggregate(Avg('rate'))
-            "rating": 5
+                    "name": specification.name,
+                    "value": specification.value
+                } for specification in product.specificationproduct_set.all()],
+            "rating": reviews_product.aggregate(Avg('rate'))['rate__avg']
         }
         return Response(data)
 
