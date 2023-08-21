@@ -65,7 +65,20 @@ class ProductDetailApiView(APIView):
 
 class CatalogListApiView(APIView):
     def get(self, request):
-        products = Product.objects.all()
+        parameters = json.loads(request.body)
+
+        if parameters['available']:
+            products = Product.objects.filter(title__contains=parameters['name'],
+                                              price__gte=parameters['minPrice'],
+                                              price__lte=parameters['maxPrice'],
+                                              freeDelivery=parameters['freeDelivery'],
+                                              count__gt=0)
+        else:
+            products = Product.objects.filter(title__contains=parameters['name'],
+                                              price__gte=parameters['minPrice'],
+                                              price__lte=parameters['maxPrice'],
+                                              freeDelivery=parameters['freeDelivery'])
+
         data = {
             "items": [{
                 "id": product.id,
