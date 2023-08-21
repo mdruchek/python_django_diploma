@@ -47,11 +47,16 @@ class ProductDetailApiView(APIView):
             } for tag in product.tags.all()],
             "reviews": [
                 {
-                    "author": review.author,
-                    "email": review.email,
-                    "text": review.text,
-                    "rate": review.rate,
-                    "date": review.created_to
+                    "author": "Annoying Orange",
+                    "email": "no-reply@mail.ru",
+                    "text": "rewrewrwerewrwerwerewrwerwer",
+                    "rate": 4,
+                    "date": "2023-05-05 12:12"
+                    # "author": review.author,
+                    # "email": review.email,
+                    # "text": review.text,
+                    # "rate": review.rate,
+                    # "date": review.created_to
                 } for review in reviews_product],
             "specifications": [
                 {
@@ -61,6 +66,13 @@ class ProductDetailApiView(APIView):
             "rating": reviews_product.aggregate(Avg('rate'))
         }
         return Response(data)
+
+
+class ProductReviewApiView(APIView):
+    def post(self, request, id):
+        data = json.loads(request.body)
+        print(data)
+        # review = ReviewProduct.objects.create()
 
 
 class CatalogListApiView(APIView):

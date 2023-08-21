@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 from rest_framework import routers
 from .api import (ProductCategoryListApiView,
                   ProductDetailApiView,
+                  ProductReviewApiView,
                   CatalogListApiView,
                   TagViewSet,
                   ProductLimitedListApiView,
@@ -45,6 +46,7 @@ urlpatterns = [
     path('sign-up/', TemplateView.as_view(template_name="frontend/signUp.html")),
     path('api/categories/', ProductCategoryListApiView.as_view()),
     path('api/product/<int:id>/', ProductDetailApiView.as_view()),
+    path('api/product/<int:id>/review/', ProductReviewApiView.as_view()),
     path('api/catalog/', CatalogListApiView.as_view()),
     path('api/products/limited/', ProductLimitedListApiView.as_view()),
     path('api/products/popular/', ProductPopularListApiView.as_view()),
