@@ -47,32 +47,44 @@ class ProductDetailApiView(APIView):
             } for tag in product.tags.all()],
             "reviews": [
                 {
-                    "author": "Annoying Orange",
-                    "email": "no-reply@mail.ru",
-                    "text": "rewrewrwerewrwerwerewrwerwer",
-                    "rate": 4,
-                    "date": "2023-05-05 12:12"
-                    # "author": review.author,
-                    # "email": review.email,
-                    # "text": review.text,
-                    # "rate": review.rate,
-                    # "date": review.created_to
+                    "author": review.author,
+                    "email": review.email,
+                    "text": review.text,
+                    "rate": review.rate,
+                    "date": review.created_to
                 } for review in reviews_product],
             "specifications": [
                 {
-                    "name": specification.name,
-                    "value": specification.value
-                } for specification in product.specifications],
-            "rating": reviews_product.aggregate(Avg('rate'))
+                    "name": "Size",
+                    "value": "XL"
+                }],
+                    # "name": specification.get('name'),
+                    # "value": specification.get('value')
+                # } for specification in product.specifications],
+            # "rating": reviews_product.aggregate(Avg('rate'))
+            "rating": 5
         }
         return Response(data)
 
 
 class ProductReviewApiView(APIView):
     def post(self, request, id):
-        data = json.loads(request.body)
-        print(data)
-        # review = ReviewProduct.objects.create()
+        data_request = request.data
+        ReviewProduct.objects.create(author=data_request['author'],
+                                     email=data_request['email'],
+                                     text=data_request['text'],
+                                     rate=data_request['rate'],
+                                     product=Product.objects.get(id=id))
+
+        data_response = [{
+            'author': review.author,
+            'email': review.email,
+            'text': review.text,
+            'rate': review.rate,
+            'date': review.created_to
+        } for review in ReviewProduct.objects.filter(product=id)]
+
+        return Response(data_response)
 
 
 class CatalogListApiView(APIView):
