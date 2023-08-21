@@ -92,6 +92,7 @@ class Product(models.Model):
     fullDescription = models.TextField(max_length=1000, verbose_name='Полное описание')
     freeDelivery = models.BooleanField(default=False, verbose_name='Бесплатная доставка')
     tags = models.ManyToManyField(Tag, verbose_name='Tags', blank=True, null=True)
+    specifications = models.JSONField(verbose_name='Характеристики')
 
     class Meta:
         verbose_name = 'Товар'
