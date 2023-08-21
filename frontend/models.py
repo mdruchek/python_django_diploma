@@ -92,7 +92,6 @@ class Product(models.Model):
     fullDescription = models.TextField(max_length=1000, verbose_name='Полное описание')
     freeDelivery = models.BooleanField(default=False, verbose_name='Бесплатная доставка')
     tags = models.ManyToManyField(Tag, verbose_name='Tags', blank=True, null=True)
-    specifications = models.JSONField(verbose_name='Характеристики')
 
     class Meta:
         verbose_name = 'Товар'
@@ -166,3 +165,16 @@ class ReviewProduct(models.Model):
     rate = models.IntegerField(verbose_name='Оценка')
     created_to = models.DateTimeField(verbose_name='Дата создания', auto_now_add=True)
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Отзыв о товаре'
+        verbose_name_plural = 'Отзывы о товарах'
+
+
+class SpecificationProduct(models.Model):
+    name = models.CharField(verbose_name='Название', max_length=100)
+    value = models.CharField(verbose_name='Значение', max_length=100)
+    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
+
+    verbose_name = 'Характеристика товара'
+    verbose_name_plural = 'Характеристики товаров'
