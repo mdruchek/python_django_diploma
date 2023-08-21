@@ -3,6 +3,7 @@ from django.http import HttpRequest, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.admin import User
 from django.db import IntegrityError
+from django.db.models import Avg
 from django.core.exceptions import ValidationError
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
@@ -15,6 +16,7 @@ from .models import (UserProfile,
                      UserRole,
                      ProductCategory,
                      Product,
+                     ReviewProduct,
                      Tag)
 
 
@@ -26,6 +28,7 @@ class ProductCategoryListApiView(ListAPIView):
 class ProductDetailApiView(APIView):
     def get(self, request, id):
         product = Product.objects.get(id=id)
+        reviews_product = ReviewProduct.objects.filter(product=product)
         data = {
             "id": product.id,
             "category": product.category.id,
@@ -44,20 +47,18 @@ class ProductDetailApiView(APIView):
             } for tag in product.tags.all()],
             "reviews": [
                 {
-                    "author": "Annoying Orange",
-                    "email": "no-reply@mail.ru",
-                    "text": "rewrewrwerewrwerwerewrwerwer",
-                    "rate": 4,
-                    "date": "2023-05-05 12:12"
-                }
-            ],
+                    "author": review.author,
+                    "email": review.email,
+                    "text": review.text,
+                    "rate": review.rate,
+                    "date": review.created_to
+                } for review in reviews_product],
             "specifications": [
                 {
-                    "name": "Size",
-                    "value": "XL"
-                }
-            ],
-            "rating": 4.6
+                    "name": specification.name,
+                    "value": specification.value
+                } for specification in product.specifications],
+            "rating": reviews_product.aggregate(Avg('rate'))
         }
         return Response(data)
 
