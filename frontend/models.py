@@ -156,3 +156,12 @@ class ProductsInOrders(models.Model):
     order = models.ForeignKey(Order, verbose_name='Заказ', on_delete=models.PROTECT)
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.PROTECT)
     count = models.IntegerField(verbose_name='Количество')
+
+
+class ReviewProduct(models.Model):
+    author = models.CharField(verbose_name='Автор', max_length=50)
+    email = models.EmailField(verbose_name='Email', max_length=100)
+    text = models.CharField(verbose_name='Текст отзыва', max_length=500)
+    rate = models.IntegerField(verbose_name='Оценка')
+    created_to = models.DateTimeField(verbose_name='Дата создания', auto_now_add=True)
+    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
