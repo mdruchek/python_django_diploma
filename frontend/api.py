@@ -59,7 +59,7 @@ class ProductDetailApiView(APIView):
                     "name": specification.name,
                     "value": specification.value
                 } for specification in product.specificationproduct_set.all()],
-            "rating": round(reviews_product.aggregate(Avg('rate'))['rate__avg'], 1)
+            "rating": round(ReviewProduct.objects.filter(product=product).aggregate(Avg('rate'))['rate__avg'], 1) if ReviewProduct.objects.filter(product=product) else 0
         }
         return Response(data)
 
@@ -87,17 +87,33 @@ class ProductReviewApiView(APIView):
 class CatalogListApiView(APIView):
     def get(self, request):
         data = request.GET
-        if data['filter[available]'] == 'true':
-            products = Product.objects.filter(title__contains=data['filter[name]'],
-                                              price__gte=data['filter[minPrice]'],
-                                              price__lte=data['filter[maxPrice]'],
-                                              freeDelivery=data['filter[freeDelivery]'],
-                                              count__gt=0)
+        products = Product.objects.filter(price__gte=int(data.get('filter[minPrice]', 0)),
+                                          price__lte=int(data.get('filter[maxPrice]', 500000)))
+
+        if data.get('filter[name]', ''):
+            products = products.filter(title__contains=data['filter[name]'])
+
+        if data.get('filter[freeDelivery]', False) == 'true':
+            products = products.filter(freeDelivery=True)
+
+        if data.get('filter[available]') == 'true':
+            products = products.filter(count__gt=0)
+
+        if data.get('sortType') == 'inc':
+            sort_type = '-'
         else:
-            products = Product.objects.filter(title__contains=data['filter[name]'],
-                                              price__gte=data['filter[minPrice]'],
-                                              price__lte=data['filter[maxPrice]'],
-                                              freeDelivery=data['filter[freeDelivery]'])
+            sort_type = ''
+
+        sort = data.get('sort', 'title')
+
+        if sort == 'rating':
+            products = sorted(products, key=(lambda obj: round(ReviewProduct.objects.filter(product=obj).aggregate(Avg('rate'))['rate__avg'], 1) if ReviewProduct.objects.filter(product=obj) else 0), reverse=True if sort_type == '-' else False)
+        elif sort == 'reviews':
+            products = sorted(products, key=(lambda obj: obj.reviewproduct_set.all().count()),
+                              reverse=True if sort_type == '-' else False)
+        else:
+            products = products.order_by('{sort_type}{sort}'.format(sort_type=sort_type,
+                                                                    sort=sort))
 
         data = {
             "items": [{
@@ -115,11 +131,12 @@ class CatalogListApiView(APIView):
                     "id": tag.id,
                     "name": tag.name
                 } for tag in product.tags.all()],
-                "reviews": product.specificationproduct_set.all().count(),
-                "rating": round(ReviewProduct.objects.filter(product=product).aggregate(Avg('rate'))['rate__avg'], 1)
+                "reviews": product.reviewproduct_set.all().count(),
+                "rating": round(ReviewProduct.objects.filter(product=product).aggregate(Avg('rate'))['rate__avg'], 1) if ReviewProduct.objects.filter(product=product) else 0
+
             } for product in products],
-            "currentPage": 1,
-            "lastPage": 1
+            "currentPage": 2,
+            "lastPage": 3
         }
         return Response(data)
 
