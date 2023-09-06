@@ -1,24 +1,30 @@
 import json
-from django.http import HttpRequest, HttpResponse
+from operator import itemgetter
+from django.http import HttpRequest, HttpResponse, QueryDict
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.admin import User
 from django.db import IntegrityError
-from django.db.models import Avg
+from django.db.models import Avg, QuerySet, Prefetch
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from .serializers import (TagSerializer, ProductCategorySerializer)
+from .serializers import (TagSerializer,
+                          ProductCategorySerializer)
 from .models import (UserProfile,
                      UserAvatar,
                      UserRole,
                      ProductCategory,
                      Product,
                      ReviewProduct,
-                     SpecificationProduct,
-                     Tag)
+                     Tag,
+                     Basket,
+                     ProductsInBaskets,
+                     Order,
+                     ProductsInOrders)
 
 
 class ProductCategoryListApiView(ListAPIView):
@@ -59,7 +65,8 @@ class ProductDetailApiView(APIView):
                     "name": specification.name,
                     "value": specification.value
                 } for specification in product.specificationproduct_set.all()],
-            "rating": round(ReviewProduct.objects.filter(product=product).aggregate(Avg('rate'))['rate__avg'], 1) if ReviewProduct.objects.filter(product=product) else 0
+            "rating": round(ReviewProduct.objects.filter(product=product).aggregate(Avg('rate'))['rate__avg'], 1)
+                        if ReviewProduct.objects.filter(product=product) else 0
         }
         return Response(data)
 
@@ -86,36 +93,56 @@ class ProductReviewApiView(APIView):
 
 class CatalogListApiView(APIView):
     def get(self, request):
-        data = request.GET
-        products = Product.objects.filter(price__gte=int(data.get('filter[minPrice]', 0)),
-                                          price__lte=int(data.get('filter[maxPrice]', 500000)))
+        data_request: QueryDict = request.GET
+        products = Product.objects.filter(price__gte=int(data_request.get('filter[minPrice]', 0)),
+                                          price__lte=int(data_request.get('filter[maxPrice]', 500000)))
 
-        if data.get('filter[name]', ''):
-            products = products.filter(title__contains=data['filter[name]'])
+        if data_request.get('category', False):
+            category = ProductCategory.objects.get(id=data_request['category'])
+            if category.parent:
+                products = products.filter(category=data_request['category'])
+            else:
+                categories = ProductCategory.objects.filter(parent=category)
+                products = products.filter(category__in=(category.id for category in categories))
 
-        if data.get('filter[freeDelivery]', False) == 'true':
+        if data_request.get('filter[name]', ''):
+            products = products.filter(title__contains=data_request['filter[name]'])
+
+        if data_request.get('filter[freeDelivery]', False) == 'true':
             products = products.filter(freeDelivery=True)
 
-        if data.get('filter[available]') == 'true':
+        if data_request.get('filter[available]') == 'true':
             products = products.filter(count__gt=0)
 
-        if data.get('sortType') == 'inc':
+        if data_request.get('sortType') == 'inc':
             sort_type = '-'
         else:
             sort_type = ''
 
-        sort = data.get('sort', 'title')
+        sort = data_request.get(key='sort', default='title')
 
         if sort == 'rating':
-            products = sorted(products, key=(lambda obj: round(ReviewProduct.objects.filter(product=obj).aggregate(Avg('rate'))['rate__avg'], 1) if ReviewProduct.objects.filter(product=obj) else 0), reverse=True if sort_type == '-' else False)
+            products = sorted(products,
+                              key=(lambda obj: round(ReviewProduct.objects.filter(product=obj).aggregate(Avg('rate'))['rate__avg'], 1)
+                              if ReviewProduct.objects.filter(product=obj) else 0),
+                              reverse=True if sort_type=='-' else False)
         elif sort == 'reviews':
-            products = sorted(products, key=(lambda obj: obj.reviewproduct_set.all().count()),
-                              reverse=True if sort_type == '-' else False)
+            products = sorted(products,
+                              key=(lambda obj: obj.reviewproduct_set.all().count()),
+                              reverse=True if sort_type=='-' else False)
         else:
             products = products.order_by('{sort_type}{sort}'.format(sort_type=sort_type,
                                                                     sort=sort))
 
-        data = {
+        tags = data_request.getlist('tags[]')
+        if tags:
+            products = Product.objects.filter(tags__in=tags)
+
+        paginator = Paginator(products, 2)
+        current_page = data_request.get('currentPage')
+        last_page = paginator.num_pages
+
+        data_response = {
             "items": [{
                 "id": product.id,
                 "category": product.category.id,
@@ -132,13 +159,15 @@ class CatalogListApiView(APIView):
                     "name": tag.name
                 } for tag in product.tags.all()],
                 "reviews": product.reviewproduct_set.all().count(),
-                "rating": round(ReviewProduct.objects.filter(product=product).aggregate(Avg('rate'))['rate__avg'], 1) if ReviewProduct.objects.filter(product=product) else 0
+                "rating": round(ReviewProduct.objects.filter(product=product).aggregate(Avg('rate'))['rate__avg'], 1)
+                            if ReviewProduct.objects.filter(product=product) else 0
 
-            } for product in products],
-            "currentPage": 2,
-            "lastPage": 3
+
+            } for product in paginator.page(current_page)],
+            "currentPage": current_page,
+            "lastPage": last_page
         }
-        return Response(data)
+        return Response(data_response)
 
 
 class ProductLimitedListApiView(APIView):
