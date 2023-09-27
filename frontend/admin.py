@@ -19,7 +19,9 @@ from .models import (ProductCategory,
                      SpecificationProduct,
                      Tag,
                      ImageDepartments,
-                     ImagesProducts)
+                     ImagesProducts,
+                     Basket,
+                     OrderStatus)
 
 from .forms import CSVImportForms
 from .admin_mixins import ExportAsCSVMixin
@@ -63,7 +65,7 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
     actions = [
         'export_csv',
     ]
-    list_display = ['title', 'price']
+    list_display = ['title', 'count', 'price', 'date']
     inlines = [
         ImagesProductInLine,
         SpecificationProductInLine
@@ -129,10 +131,20 @@ class TagAdmin(admin.ModelAdmin):
 
 
 @admin.register(ImageDepartments)
-class ImageDepartments(admin.ModelAdmin):
+class ImageDepartmentsAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(ImagesProducts)
-class ImagesProduct(admin.ModelAdmin):
+class ImagesProductAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Basket)
+class BasketAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(OrderStatus)
+class OrderStatusAdmin(admin.ModelAdmin):
     pass

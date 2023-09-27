@@ -1,19 +1,23 @@
 import json
-from operator import itemgetter
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.admin import User
-from django.db import IntegrityError
-from django.db.models import Avg, QuerySet, Prefetch
+from django.db import IntegrityError, transaction
+from django.db.models import Avg, QuerySet
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from rest_framework import viewsets
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, CreateAPIView, GenericAPIView, RetrieveUpdateAPIView
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from .serializers import (TagSerializer,
-                          ProductCategorySerializer)
+                          ProductCategorySerializer,
+                          ProductSerializer,
+                          ReviewProductSerializer,
+                          OrderSerializer
+                          )
 from .models import (UserProfile,
                      UserAvatar,
                      UserRole,
@@ -24,78 +28,40 @@ from .models import (UserProfile,
                      Basket,
                      ProductsInBaskets,
                      Order,
-                     ProductsInOrders)
+                     ProductsInOrders,
+                     OrderStatus)
 
 
 class ProductCategoryListApiView(ListAPIView):
-    queryset = ProductCategory.objects.filter(parent__isnull=True)
+    queryset = ProductCategory.objects.filter(parent__isnull=True).prefetch_related('subcategories').prefetch_related('image')
     serializer_class = ProductCategorySerializer
 
 
-class ProductDetailApiView(APIView):
-    def get(self, request, id):
-        product = Product.objects.get(id=id)
-        reviews_product = ReviewProduct.objects.filter(product=product)
-        data = {
-            "id": product.id,
-            "category": product.category.id,
-            "price": product.price,
-            "count": product.count,
-            "date": product.date,
-            "title": product.title,
-            "description": product.description,
-            "fullDescription": product.fullDescription,
-            "freeDelivery": product.freeDelivery,
-            "images": [{'src': image.image.url,
-                        'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
-            "tags": [{
-                    "id": tag.id,
-                    "name": tag.name
-            } for tag in product.tags.all()],
-            "reviews": [
-                {
-                    "author": review.author,
-                    "email": review.email,
-                    "text": review.text,
-                    "rate": review.rate,
-                    "date": review.created_to
-                } for review in reviews_product],
-            "specifications": [
-                {
-                    "name": specification.name,
-                    "value": specification.value
-                } for specification in product.specificationproduct_set.all()],
-            "rating": round(ReviewProduct.objects.filter(product=product).aggregate(Avg('rate'))['rate__avg'], 1)
-                        if ReviewProduct.objects.filter(product=product) else 0
-        }
-        return Response(data)
+class ProductDetailApiView(RetrieveAPIView):
+    serializer_class = ProductSerializer
+    queryset = Product.objects.all()
+    lookup_field = 'id'
 
 
-class ProductReviewApiView(APIView):
-    def post(self, request, id):
-        data_request = request.data
-        ReviewProduct.objects.create(author=data_request['author'],
-                                     email=data_request['email'],
-                                     text=data_request['text'],
-                                     rate=data_request['rate'],
-                                     product=Product.objects.get(id=id))
+class ProductReviewApiView(ListCreateAPIView):
+    serializer_class = ReviewProductSerializer
 
-        data_response = [{
-            'author': review.author,
-            'email': review.email,
-            'text': review.text,
-            'rate': review.rate,
-            'date': review.created_to
-        } for review in ReviewProduct.objects.filter(product=id)]
-
-        return Response(data_response)
+    def create(self, request, *args, **kwargs):
+        self.queryset = ReviewProduct.objects.filter(product_id=kwargs['id'])
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(product=Product.objects.get(id=kwargs['id']))
+        return self.list(request)
 
 
 class CatalogListApiView(APIView):
     def get(self, request):
         data_request: QueryDict = request.GET
-        products = Product.objects.filter(price__gte=int(data_request.get('filter[minPrice]', 0)),
-                                          price__lte=int(data_request.get('filter[maxPrice]', 500000)))
+
+        products = ((Product.objects.filter(price__gte=int(data_request.get('filter[minPrice]', 0)),
+                                            price__lte=int(data_request.get('filter[maxPrice]', 500000)))
+                     .prefetch_related('images'))
+                    .prefetch_related('reviews'))
 
         if data_request.get('category', False):
             category = ProductCategory.objects.get(id=data_request['category'])
@@ -125,11 +91,11 @@ class CatalogListApiView(APIView):
             products = sorted(products,
                               key=(lambda obj: round(ReviewProduct.objects.filter(product=obj).aggregate(Avg('rate'))['rate__avg'], 1)
                               if ReviewProduct.objects.filter(product=obj) else 0),
-                              reverse=True if sort_type=='-' else False)
+                              reverse=True if sort_type =='-' else False)
         elif sort == 'reviews':
             products = sorted(products,
-                              key=(lambda obj: obj.reviewproduct_set.all().count()),
-                              reverse=True if sort_type=='-' else False)
+                              key=(lambda obj: obj.reviews.all().count()),
+                              reverse=True if sort_type == '-' else False)
         else:
             products = products.order_by('{sort_type}{sort}'.format(sort_type=sort_type,
                                                                     sort=sort))
@@ -142,56 +108,48 @@ class CatalogListApiView(APIView):
         current_page = data_request.get('currentPage')
         last_page = paginator.num_pages
 
-        data_response = {
-            "items": [{
-                "id": product.id,
-                "category": product.category.id,
-                "price": product.price,
-                "count": product.count,
-                "date": product.date,
-                "title": product.title,
-                "description": product.description,
-                "freeDelivery": product.freeDelivery,
-                "images": [{'src': image.image.url,
-                            'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
-                "tags": [{
-                    "id": tag.id,
-                    "name": tag.name
-                } for tag in product.tags.all()],
-                "reviews": product.reviewproduct_set.all().count(),
-                "rating": round(ReviewProduct.objects.filter(product=product).aggregate(Avg('rate'))['rate__avg'], 1)
-                            if ReviewProduct.objects.filter(product=product) else 0
+        serialized = ProductSerializer(paginator.get_page(current_page),
+                                       many=True,
+                                       fields=[
+                                           'id',
+                                           'category',
+                                           'price',
+                                           'count',
+                                           'date',
+                                           'title',
+                                           'description',
+                                           'freeDelivery',
+                                           'images',
+                                           'reviews'
+                                       ],
+                                       context={'view': self})
 
-
-            } for product in paginator.page(current_page)],
-            "currentPage": current_page,
-            "lastPage": last_page
-        }
-        return Response(data_response)
+        return Response({'items': serialized.data,
+                         'currentPage': current_page,
+                         'lastPage': last_page})
 
 
 class ProductLimitedListApiView(APIView):
     def get(self, request):
-        products = Product.objects.filter(count__lte=5)
-        data = [{
-            "id": product.id,
-            "category": product.category.id,
-            "price": product.price,
-            "count": product.count,
-            "date": product.date,
-            "title": product.title,
-            "description": product.description,
-            "freeDelivery": product.freeDelivery,
-            "images": [{'src': image.image.url,
-                        'alt': "Image alt string"} for image in product.imagesproducts_set.all()],
-            "tags": [{
-                "id": tag.id,
-                "name": tag.name
-            } for tag in product.tags.all()],
-            "reviews": 5,
-            "rating": 4.6
-        } for product in products]
-        return Response(data)
+        products = Product.objects.filter(limited_edition=True, count__gt=0)[:15]
+        serialized = ProductSerializer(products,
+                                       many=True,
+                                       fields=[
+                                           'id',
+                                           'category',
+                                           'price',
+                                           'count',
+                                           'date',
+                                           'title',
+                                           'description',
+                                           'freeDelivery',
+                                           'images',
+                                           'tags',
+                                           'reviews'
+                                       ],
+                                       context={'view': self})
+
+        return Response(serialized.data)
 
 
 class ProductPopularListApiView(APIView):
@@ -278,255 +236,154 @@ class BannersListApiView(APIView):
 
 
 class BasketListApiView(APIView):
-    def get(self, request):
-        data = [{
-          "id": 123,
-          "category": 55,
-          "price": 500.67,
-          "count": 12,
-          "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-          "title": "video card",
-          "description": "description of the product",
-          "freeDelivery": True,
-          "images": [
-            {
-              "src": "/3.png",
-              "alt": "Image alt string"
-            }
-          ],
-          "tags": [
-            {
-              "id": 12,
-              "name": "Gaming"
-            }
-          ],
-          "reviews": 5,
-          "rating": 4.6
-        }]
-        return Response(data)
+    def get(self, request: Request):
+        basket: QuerySet = Basket.objects.get_or_create(user=request.user)[0]
+        products_in_basket = basket.products.all()
+        count_products = dict()
+        for product_in_basket in (ProductsInBaskets.objects.filter(basket=basket).values()):
+            count_products[product_in_basket['product_id']] = product_in_basket['count']
 
-    def post(self, request):
-        request_data = json.loads(request.body)
+        serialized = ProductSerializer(products_in_basket,
+                                       many=True,
+                                       fields=['id',
+                                               'category',
+                                               'price',
+                                               'count',
+                                               'date',
+                                               'title',
+                                               'description',
+                                               'freeDelivery',
+                                               'images',
+                                               'tags',
+                                               'reviews'],
+                                       context={
+                                           'view': self,
+                                           'count': count_products
+                                       })
+
+        return Response(serialized.data)
+
+    def post(self, request: Request):
+        request_data = request.data
+        basket: Basket = Basket.objects.get_or_create(user=request.user)[0]
         id_product = request_data['id']
         count_product = request_data['count']
-        data = [{
-            "id": 123,
-            "category": 55,
-            "price": 500.67,
-            "count": 12,
-            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-            "title": "video card",
-            "description": "description of the product",
-            "freeDelivery": True,
-            "images": [
-              {
-                "src": "/3.png",
-                "alt": "Image alt string"
-              }
-            ],
-            "tags": [
-              {
-                "id": 12,
-                "name": "Gaming"
-              }
-            ],
-            "reviews": 5,
-            "rating": 4.6
-          }]
-        return Response(data)
+        product = Product.objects.get(id=id_product)
+        if product.count < request_data['count']:
+            count_product = product.count
+        products_in_basket = basket.products.all()
+        if product not in products_in_basket:
+            if product.count > 0:
+                basket.products.add(product, through_defaults={'count': count_product})
+        else:
+            update_product = product.productsinbaskets_set.get(basket=basket, product=product)
+            if update_product.count < product.count:
+                update_product.count += count_product
+            update_product.save()
+        products_in_basket = basket.products.all()
+
+        count_products = dict()
+        for product_in_basket in (ProductsInBaskets.objects.filter(basket=basket).values()):
+            count_products[product_in_basket['product_id']] = product_in_basket['count']
+
+        serialized = ProductSerializer(products_in_basket,
+                                       many=True,
+                                       fields=['id',
+                                               'category',
+                                               'price',
+                                               'count',
+                                               'date',
+                                               'title',
+                                               'description',
+                                               'freeDelivery',
+                                               'images',
+                                               'tags',
+                                               'reviews'],
+                                       context={
+                                           'view': self,
+                                           'count': count_products
+                                       })
+
+        return Response(serialized.data)
 
     def delete(self, request):
         request_data = json.loads(request.body)
         id_product = request_data['id']
         count_product = request_data['count']
-        data = [{
-            "id": 123,
-            "category": 55,
-            "price": 500.67,
-            "count": 12,
-            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-            "title": "video card",
-            "description": "description of the product",
-            "freeDelivery": True,
-            "images": [
-              {
-                "src": "/3.png",
-                "alt": "Image alt string"
-              }
-            ],
-            "tags": [
-              {
-                "id": 12,
-                "name": "Gaming"
-              }
-            ],
-            "reviews": 5,
-            "rating": 4.6
-        }]
-        return Response(data)
+        basket: QuerySet = Basket.objects.get_or_create(user=request.user)[0]
+        product = Product.objects.get(id=id_product)
+        product_for_delete = product.productsinbaskets_set.get(basket=basket, product=product)
+        product_for_delete.count -= count_product
+        product_for_delete.save()
+        if product_for_delete.count == 0:
+            product_for_delete.delete()
+        products_in_basket = basket.products.all()
+
+        count_products = dict()
+        for product_in_basket in (ProductsInBaskets.objects.filter(basket=basket).values()):
+            count_products[product_in_basket['product_id']] = product_in_basket['count']
+
+        serialized = ProductSerializer(products_in_basket,
+                                       many=True,
+                                       fields=['id',
+                                               'category',
+                                               'price',
+                                               'count',
+                                               'date',
+                                               'title',
+                                               'description',
+                                               'freeDelivery',
+                                               'images',
+                                               'tags',
+                                               'reviews'],
+                                       context={
+                                           'view': self,
+                                           'count': count_products
+                                       })
+
+        return Response(serialized.data)
 
 
-class OrderListApiView(APIView):
-    def get(self, request):
-        data = [{
-            "id": 123,
-            "createdAt": "2023-05-05 12:12",
-            "fullName": "Annoying Orange",
-            "email": "no-reply@mail.ru",
-            "phone": "88002000600",
-            "deliveryType": "free",
-            "paymentType": "online",
-            "totalCost": 567.8,
-            "status": "accepted",
-            "city": "Moscow",
-            "address": "red square 1",
-            "products": [
-              {
-                "id": 123,
-                "category": 55,
-                "price": 500.67,
-                "count": 12,
-                "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-                "title": "video card",
-                "description": "description of the product",
-                "freeDelivery": True,
-                "images": [
-                  {
-                    "src": "/3.png",
-                    "alt": "Image alt string"
-                  }
-                ],
-                "tags": [
-                  {
-                    "id": 12,
-                    "name": "Gaming"
-                  }
-                ],
-                "reviews": 5,
-                "rating": 4.6
-              }
-            ]
-        }]
-        return Response(data)
+class OrderListApiView(ListCreateAPIView):
+    serializer_class = OrderSerializer
+    queryset = Order.objects.exclude(status__status='Завершён')
 
-    def post(self, request):
-        request_data = json.loads(request.body)
-        order_id = request_data['orderId']
-        data = [{
-            "id": 123,
-            "category": 55,
-            "price": 500.67,
-            "count": 12,
-            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-            "title": "video card",
-            "description": "description of the product",
-            "freeDelivery": True,
-            "images": [
-              {
-                "src": "/3.png",
-                "alt": "Image alt string"
-              }
-            ],
-            "tags": [
-              {
-                "id": 12,
-                "name": "Gaming"
-              }
-            ],
-            "reviews": 5,
-            "rating": 4.6
-        }]
-
-
-class OrderDetailApiView(APIView):
-    def get(self, request, id):
-        data = {
-          "id": 123,
-          "createdAt": "2023-05-05 12:12",
-          "fullName": "Annoying Orange",
-          "email": "no-reply@mail.ru",
-          "phone": "88002000600",
-          "deliveryType": "free",
-          "paymentType": "online",
-          "totalCost": 567.8,
-          "status": "accepted",
-          "city": "Moscow",
-          "address": "red square 1",
-          "products": [
-            {
-              "id": 123,
-              "category": 55,
-              "price": 500.67,
-              "count": 12,
-              "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-              "title": "video card",
-              "description": "description of the product",
-              "freeDelivery": True,
-              "images": [
-                {
-                  "src": "/3.png",
-                  "alt": "Image alt string"
-                }
-              ],
-              "tags": [
-                {
-                  "id": 12,
-                  "name": "Gaming"
-                }
-              ],
-              "reviews": 5,
-              "rating": 4.6
+    def post(self, request, *args, **kwargs):
+        serialized = self.get_serializer(
+            data={
+                'totalCost': sum([product['price'] * product['count'] for product in request.data]),
             }
-          ]
-        }
-        return Response(data)
+        )
 
-    def post(self, id):
-        data = {
-          "id": 123,
-          "createdAt": "2023-05-05 12:12",
-          "fullName": "Annoying Orange",
-          "email": "no-reply@mail.ru",
-          "phone": "88002000600",
-          "deliveryType": "free",
-          "paymentType": "online",
-          "totalCost": 567.8,
-          "status": "accepted",
-          "city": "Moscow",
-          "address": "red square 1",
-          "products": [
-            {
-              "id": 123,
-              "category": 55,
-              "price": 500.67,
-              "count": 12,
-              "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-              "title": "video card",
-              "description": "description of the product",
-              "freeDelivery": True,
-              "images": [
-                {
-                  "src": "/3.png",
-                  "alt": "Image alt string"
-                }
-              ],
-              "tags": [
-                {
-                  "id": 12,
-                  "name": "Gaming"
-                }
-              ],
-              "reviews": 5,
-              "rating": 4.6
-            }
-          ]
-        }
-        return Response(data)
+        serialized.is_valid(raise_exception=True)
+        serialized.save(status=OrderStatus.objects.get(status='На оформлении'))
+        return Response({"orderId": serialized.instance.id})
+
+
+class OrderDetailApiView(RetrieveUpdateAPIView):
+    serializer_class = OrderSerializer
+    queryset = Order.objects.all()
+    lookup_field = 'id'
+
+    def post(self, request: Request, *args, **kwargs):
+        serialised_order = self.get_serializer(self.get_object(),
+                                               data=request.data)
+        serialised_order.is_valid(raise_exception=True)
+        serialised_order.save()
+        basket_in_request: dict = request.data.get('basket')
+        products = Product.objects.in_bulk(map(int, basket_in_request)).values()
+        for product in products:
+            product.count -= basket_in_request.get(str(product.id)).get('count')
+        Product.objects.bulk_update(products, ['count'])
+        basket_obj = Basket.objects.get(user=request.user)
+        basket_obj.productsinbaskets_set.all().delete()
+        basket_obj.delete()
+        return Response(status=200)
 
 
 class PaymentApiView(APIView):
-    def post(self, request):
-        pass
+    def post(self, request, id):
+        return Response(status=200)
 
 
 class ProfileApiView(APIView):

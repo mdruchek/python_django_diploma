@@ -87,11 +87,12 @@ class Product(models.Model):
     price = models.FloatField(verbose_name='Стоимость')
     count = models.IntegerField(verbose_name='Количество')
     date = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
-    title = models.CharField(max_length=100, verbose_name='Наименование')
+    title = models.CharField(max_length=100, verbose_name='Наименование', db_index=True)
     description = models.CharField(max_length=500, verbose_name='Описание')
     fullDescription = models.TextField(max_length=1000, verbose_name='Полное описание')
     freeDelivery = models.BooleanField(default=False, verbose_name='Бесплатная доставка')
     tags = models.ManyToManyField(Tag, verbose_name='Tags', blank=True, null=True)
+    limited_edition = models.BooleanField(verbose_name='Ограниченный тираж', default=False)
 
     class Meta:
         verbose_name = 'Товар'
@@ -106,15 +107,16 @@ def image_product_directory_path(instance: 'ImagesProducts', filename: str) -> s
 
 
 class ImagesProducts(models.Model):
-    image = models.ImageField(null=True, blank=True, upload_to=image_product_directory_path, verbose_name='Фото товара')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар')
+    src = models.ImageField(upload_to=image_product_directory_path, verbose_name='Фото товара')
+    alt = models.CharField(verbose_name='описание', max_length=50, default='Image alt string')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар', related_name='images')
 
     class Meta:
         verbose_name = 'Изображение товара'
         verbose_name_plural = 'Изображения товара'
 
     def __str__(self):
-        return self.image.name
+        return self.src.name
 
 
 class Basket(models.Model):
@@ -128,24 +130,27 @@ class Basket(models.Model):
 class ProductsInBaskets(models.Model):
     basket = models.ForeignKey(Basket, verbose_name='Корзина', on_delete=models.PROTECT)
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.PROTECT)
-    count = models.ImageField(verbose_name='Количество')
+    count = models.IntegerField(verbose_name='Количество')
 
 
 class OrderStatus(models.Model):
     status = models.CharField(verbose_name='Статус', max_length=50)
 
+    def __str__(self):
+        return self.status
+
 
 class Order(models.Model):
-    created_at = models.DateTimeField(verbose_name='Дата создания', auto_now_add=True)
-    fullname = models.CharField(verbose_name='Полное имя пользователя', max_length=100)
-    email = models.EmailField(verbose_name='Email', max_length=100)
-    phone = models.CharField(verbose_name='Номер телефона', max_length=12)
-    delivery_type = models.CharField(verbose_name='Тип доставки', max_length=20)
-    payment_type = models.CharField(verbose_name='Тип оплаты', max_length=20)
-    total_cost = models.FloatField(verbose_name='Полная стоимость')
+    createdAt = models.DateTimeField(verbose_name='Дата создания', auto_now_add=True)
+    fullName = models.CharField(verbose_name='Полное имя пользователя', max_length=100, null=True, blank=True)
+    email = models.EmailField(verbose_name='Email', max_length=100, null=True, blank=True)
+    phone = models.CharField(verbose_name='Номер телефона', max_length=12, null=True, blank=True)
+    deliveryType = models.CharField(verbose_name='Тип доставки', max_length=20, null=True, blank=True)
+    paymentType = models.CharField(verbose_name='Тип оплаты', max_length=20, null=True, blank=True)
+    totalCost = models.FloatField(verbose_name='Полная стоимость', null=True, blank=True)
     status = models.ForeignKey(OrderStatus, verbose_name='Статус заказа', on_delete=models.PROTECT)
-    city = models.CharField(verbose_name='Город', max_length=50)
-    address = models.CharField(verbose_name='Адрес', max_length=100)
+    city = models.CharField(verbose_name='Город', max_length=50, null=True, blank=True)
+    address = models.CharField(verbose_name='Адрес', max_length=100, null=True, blank=True)
     products = models.ManyToManyField(Product,
                                       verbose_name='Товар',
                                       through='ProductsInOrders',
@@ -163,8 +168,8 @@ class ReviewProduct(models.Model):
     email = models.EmailField(verbose_name='Email', max_length=100)
     text = models.CharField(verbose_name='Текст отзыва', max_length=500)
     rate = models.IntegerField(verbose_name='Оценка')
-    created_to = models.DateTimeField(verbose_name='Дата создания', auto_now_add=True)
-    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
+    date = models.DateTimeField(verbose_name='Дата создания', auto_now_add=True)
+    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE, related_name='reviews')
 
     class Meta:
         verbose_name = 'Отзыв о товаре'
@@ -174,7 +179,8 @@ class ReviewProduct(models.Model):
 class SpecificationProduct(models.Model):
     name = models.CharField(verbose_name='Название', max_length=100)
     value = models.CharField(verbose_name='Значение', max_length=100)
-    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE, related_name='specifications')
 
-    verbose_name = 'Характеристика товара'
-    verbose_name_plural = 'Характеристики товаров'
+    class Meta:
+        verbose_name = 'Характеристика товара'
+        verbose_name_plural = 'Характеристики товаров'
