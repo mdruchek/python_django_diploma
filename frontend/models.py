@@ -120,7 +120,7 @@ class ImagesProducts(models.Model):
 
 
 class Basket(models.Model):
-    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.PROTECT)
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.PROTECT, blank=True, null=True)
     products = models.ManyToManyField(Product,
                                       verbose_name='Товар',
                                       through='ProductsInBaskets',
