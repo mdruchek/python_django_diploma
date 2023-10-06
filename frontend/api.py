@@ -466,53 +466,57 @@ class PaymentApiView(APIView):
 
 class ProfileApiView(APIView):
     def get(self, request):
-        data = {
-          "fullName": '{last_name} {first_name} {patronymic}'.format(last_name=request.user.last_name,
-                                                                     first_name=request.user.first_name,
-                                                                     patronymic=request.user.userprofile.patronymic),
-          "email": request.user.email,
-          "phone": request.user.userprofile.phone,
-          "avatar": {
-            "src": request.user.useravatar.src.url,
-            "alt": "Image alt string"
-          }
-        }
-        return Response(data)
+        if request.user.is_authenticated:
+            data = {
+              "fullName": '{last_name} {first_name} {patronymic}'.format(last_name=request.user.last_name,
+                                                                         first_name=request.user.first_name,
+                                                                         patronymic=request.user.userprofile.patronymic),
+              "email": request.user.email,
+              "phone": request.user.userprofile.phone,
+              "avatar": {
+                "src": request.user.useravatar.src.url,
+                "alt": "Image alt string"
+              }
+            }
+            return Response(data)
+        return Response(status=401)
 
     def post(self, request):
-        data_request = request.data
+        if request.user.is_authenticated:
+            data_request = request.data
 
-        full_name_list = data_request['fullName'].split()
-        last_name, first_name, patronymic = '', '', ''
-        if len(full_name_list) == 3:
-            last_name, first_name, patronymic = full_name_list
-        elif len(full_name_list) == 2:
-            last_name, first_name = full_name_list
-        elif len(full_name_list) == 1:
-            first_name = full_name_list[0]
+            full_name_list = data_request['fullName'].split()
+            last_name, first_name, patronymic = '', '', ''
+            if len(full_name_list) == 3:
+                last_name, first_name, patronymic = full_name_list
+            elif len(full_name_list) == 2:
+                last_name, first_name = full_name_list
+            elif len(full_name_list) == 1:
+                first_name = full_name_list[0]
 
-        user = User.objects.filter(id=request.user.id)
-        user_profile = UserProfile.objects.filter(user=request.user)
+            user = User.objects.filter(id=request.user.id)
+            user_profile = UserProfile.objects.filter(user=request.user)
 
-        user.update(first_name=first_name, last_name=last_name, email=data_request['email'])
+            user.update(first_name=first_name, last_name=last_name, email=data_request['email'])
 
-        user_profile.update(phone=data_request['phone'], patronymic=patronymic)
+            user_profile.update(phone=data_request['phone'], patronymic=patronymic)
 
-        user = User.objects.filter(id=request.user.id)
-        user_profile = UserProfile.objects.filter(user=request.user)
+            user = User.objects.filter(id=request.user.id)
+            user_profile = UserProfile.objects.filter(user=request.user)
 
-        data_response = {
-          "fullName": '{last_name} {first_name} {patronymic}'.format(last_name=user[0].last_name,
-                                                                     first_name=user[0].first_name,
-                                                                     patronymic=user_profile[0].patronymic),
-          "email": user[0].email,
-          "phone": user_profile[0].phone,
-          "avatar": {
-            "src": request.user.useravatar.src.url,
-            "alt": "Image alt string"
-          }
-        }
-        return Response(data_response)
+            data_response = {
+              "fullName": '{last_name} {first_name} {patronymic}'.format(last_name=user[0].last_name,
+                                                                         first_name=user[0].first_name,
+                                                                         patronymic=user_profile[0].patronymic),
+              "email": user[0].email,
+              "phone": user_profile[0].phone,
+              "avatar": {
+                "src": request.user.useravatar.src.url,
+                "alt": "Image alt string"
+              }
+            }
+            return Response(data_response)
+        return Response(status=401)
 
 
 class ProfilePasswordApiView(APIView):
