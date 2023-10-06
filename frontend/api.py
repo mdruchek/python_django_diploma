@@ -206,33 +206,30 @@ class SalesListApiView(APIView):
 
 class BannersListApiView(APIView):
     def get(self, request):
-        data = [
-          {
-            "id": 123,
-            "category": 55,
-            "price": 500.67,
-            "count": 12,
-            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-            "title": "video card",
-            "description": "description of the product",
-            "freeDelivery": True,
-            "images": [
-              {
-                "src": "/3.png",
-                "alt": "Image alt string"
-              }
-            ],
-            "tags": [
-              {
-                "id": 12,
-                "name": "Gaming"
-              }
-            ],
-            "reviews": 5,
-            "rating": 4.6
-          }
-        ]
-        return Response(data)
+        id_products_list = Product.objects.values_list('id', flat=True)
+        banner_products = []
+        for _ in range(3):
+            id_product = id_products_list[randint(0, len(id_products_list) - 1)]
+            product = Product.objects.get(id=id_product)
+            product_data = ProductSerializer(
+                product,
+                fields=[
+                    'id',
+                    'category',
+                    'price',
+                    'count',
+                    'date',
+                    'title',
+                    'description',
+                    'freeDelivery',
+                    'images',
+                    'tags',
+                    'reviews',
+
+                ]
+            ).data
+            banner_products.append(product_data)
+        return Response(banner_products)
 
 
 class BasketListApiView(APIView):
