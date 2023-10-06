@@ -3,7 +3,7 @@ from django.http import HttpRequest, HttpResponse, QueryDict
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.admin import User
 from django.db import IntegrityError, transaction
-from django.db.models import Avg, QuerySet
+from django.db.models import Avg, Count, QuerySet
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from rest_framework import viewsets
@@ -154,32 +154,28 @@ class ProductLimitedListApiView(APIView):
 
 class ProductPopularListApiView(APIView):
     def get(self, request):
-        # products = Product.objects.filter()
-        data = [{
-            "id": 123,
-            "category": 55,
-            "price": 500.67,
-            "count": 12,
-            "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-            "title": "video card",
-            "description": "description of the product",
-            "freeDelivery": True,
-            "images": [
-              {
-                "src": "/3.png",
-                "alt": "Image alt string"
-              }
-            ],
-            "tags": [
-              {
-                "id": 12,
-                "name": "Gaming"
-              }
-            ],
-            "reviews": 5,
-            "rating": 4.6
-        }]
-        return Response(data)
+        products = (Product.objects.filter(reviews__isnull=False)
+                    .annotate(reviews_count=Count('reviews'))
+                    .order_by('-reviews_count'))
+        product_data = ProductSerializer(
+            products,
+            many=True,
+            fields=[
+                'id',
+                'category',
+                'price',
+                'count',
+                'date',
+                'title',
+                'description',
+                'freeDelivery',
+                'images',
+                'tags',
+                'reviews',
+
+            ]
+        ).data
+        return Response(product_data)
 
 
 class SalesListApiView(APIView):
