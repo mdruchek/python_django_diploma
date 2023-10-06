@@ -410,7 +410,7 @@ class BasketListApiView(APIView):
 
 class OrderListApiView(ListCreateAPIView):
     serializer_class = OrderSerializer
-    queryset = Order.objects.exclude(status__status='Завершён')
+    queryset = Order.objects.all()
 
     def post(self, request, *args, **kwargs):
         serialized = self.get_serializer(
