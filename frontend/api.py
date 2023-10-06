@@ -415,6 +415,9 @@ class OrderListApiView(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         serialized = self.get_serializer(
             data={
+                'fullName': str(request.user.userprofile) if request.user.is_authenticated else None,
+                'phone': request.user.userprofile.phone if request.user.is_authenticated else None,
+                'email': request.user.email if request.user.is_authenticated else None,
                 'totalCost': sum([product['price'] * product['count'] for product in request.data]),
             }
         )
