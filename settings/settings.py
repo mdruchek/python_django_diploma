@@ -129,6 +129,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'frontend/media/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+PAGINATE_BY = 12
+
 # LOGGING = {
 #     'version': 1,
 #     'disable_existing_loggers': False,

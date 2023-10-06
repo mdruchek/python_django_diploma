@@ -7,6 +7,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Avg, Count, QuerySet
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
+from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, CreateAPIView, GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
@@ -110,7 +111,7 @@ class CatalogListApiView(APIView):
         if tags:
             products = Product.objects.filter(tags__in=tags)
         if products.exists():
-            paginator = Paginator(products, 2)
+            paginator = Paginator(products, settings.PAGINATE_BY)
             current_page = data_request.get('currentPage')
             last_page = paginator.num_pages
 
@@ -191,7 +192,7 @@ class SalesListApiView(APIView):
         sales = Sale.objects.filter(date_to__gte=date.today()).order_by('date_to')
 
         if sales.exists():
-            paginator = Paginator(sales, 1)
+            paginator = Paginator(sales, settings.PAGINATE_BY)
             current_page = request.GET.get('currentPage')
             last_page = paginator.num_pages
 
