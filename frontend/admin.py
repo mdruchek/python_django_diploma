@@ -11,17 +11,20 @@ from django.urls import path
 from django.core.files import File
 
 import settings.settings
-from .models import (ProductCategory,
-                     UserProfile,
-                     UserRole,
-                     UserAvatar,
-                     Product,
-                     SpecificationProduct,
-                     Tag,
-                     ImageDepartments,
-                     ImagesProducts,
-                     Basket,
-                     OrderStatus)
+from .models import (
+    ProductCategory,
+    UserProfile,
+    UserRole,
+    UserAvatar,
+    Product,
+    SpecificationProduct,
+    Tag,
+    ImageDepartments,
+    ImagesProducts,
+    Basket,
+    OrderStatus,
+    Sale
+)
 
 from .forms import CSVImportForms
 from .admin_mixins import ExportAsCSVMixin
@@ -148,3 +151,18 @@ class BasketAdmin(admin.ModelAdmin):
 @admin.register(OrderStatus)
 class OrderStatusAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(Sale)
+class SaleAdmin(admin.ModelAdmin):
+    list_display = [
+        'product',
+        'product_price',
+        'sale_price',
+        'date_from',
+        'date_to'
+    ]
+
+    @admin.display(description='Цена без скидки')
+    def product_price(self, obj):
+        return obj.product.price
