@@ -458,6 +458,9 @@ class OrderDetailApiView(RetrieveUpdateAPIView):
 
 class PaymentApiView(APIView):
     def post(self, request, id):
+        order = Order.objects.get(id=id)
+        order.status = OrderStatus.objects.get('Оплачен')
+        order.save()
         return Response(status=200)
 
 
