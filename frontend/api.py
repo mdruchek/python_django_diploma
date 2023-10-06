@@ -415,9 +415,6 @@ class OrderListApiView(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         serialized = self.get_serializer(
             data={
-                'fullName': str(request.user.userprofile) if request.user.is_authenticated else None,
-                'phone': request.user.userprofile.phone if request.user.is_authenticated else None,
-                'email': request.user.email if request.user.is_authenticated else None,
                 'totalCost': sum([product['price'] * product['count'] for product in request.data]),
             }
         )
@@ -431,6 +428,17 @@ class OrderDetailApiView(RetrieveUpdateAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
     lookup_field = 'id'
+
+    def get(self, request, id):
+        serialized_order = self.get_serializer(Order.objects.get(id=id))
+        if request.user.is_authenticated:
+            response_data = dict()
+            response_data.update(serialized_order.data)
+            response_data['fullName'] = str(request.user.userprofile)
+            response_data['phone'] = request.user.userprofile.phone
+            response_data['email'] = request.user.email
+            return Response(response_data)
+        return Response(serialized_order.data)
 
     def post(self, request: Request, *args, **kwargs):
         serialised_order = self.get_serializer(self.get_object(),
