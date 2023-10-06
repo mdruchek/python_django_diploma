@@ -66,9 +66,9 @@ class UserProfile(models.Model):
         verbose_name_plural = 'Профили пользователей'
 
     def __str__(self):
-        return '{username} {fist_name} {last_name}'.format(username=self.user.username,
-                                                           fist_name=self.user.first_name,
-                                                           last_name=self.user.last_name)
+        return '{last_name} {fist_name} {patronymic}'.format(patronymic=self.patronymic,
+                                                             fist_name=self.user.first_name,
+                                                             last_name=self.user.last_name)
 
 
 class Tag(models.Model):
