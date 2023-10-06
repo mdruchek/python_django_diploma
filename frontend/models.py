@@ -184,3 +184,14 @@ class SpecificationProduct(models.Model):
     class Meta:
         verbose_name = 'Характеристика товара'
         verbose_name_plural = 'Характеристики товаров'
+
+
+class Sale(models.Model):
+    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
+    sale_price = models.FloatField(verbose_name='цена со скидкой')
+    date_from = models.DateField(verbose_name='начало')
+    date_to = models.DateField(verbose_name='конец')
+
+    class Meta:
+        verbose_name = 'скидка'
+        verbose_name_plural = 'скидки'
