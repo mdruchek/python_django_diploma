@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.admin import User
@@ -12,24 +13,29 @@ from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from .serializers import (TagSerializer,
-                          ProductCategorySerializer,
-                          ProductSerializer,
-                          ReviewProductSerializer,
-                          OrderSerializer
-                          )
-from .models import (UserProfile,
-                     UserAvatar,
-                     UserRole,
-                     ProductCategory,
-                     Product,
-                     ReviewProduct,
-                     Tag,
-                     Basket,
-                     ProductsInBaskets,
-                     Order,
-                     ProductsInOrders,
-                     OrderStatus)
+from .serializers import (
+    TagSerializer,
+    ProductCategorySerializer,
+    ProductSerializer,
+    ReviewProductSerializer,
+    OrderSerializer,
+    SaleSerializer
+)
+from .models import (
+    UserProfile,
+    UserAvatar,
+    UserRole,
+    ProductCategory,
+    Product,
+    ReviewProduct,
+    Tag,
+    Basket,
+    ProductsInBaskets,
+    Order,
+    ProductsInOrders,
+    OrderStatus,
+    Sale
+)
 
 
 class ProductCategoryListApiView(ListAPIView):
@@ -103,30 +109,32 @@ class CatalogListApiView(APIView):
         tags = data_request.getlist('tags[]')
         if tags:
             products = Product.objects.filter(tags__in=tags)
+        if products.exists():
+            paginator = Paginator(products, 2)
+            current_page = data_request.get('currentPage')
+            last_page = paginator.num_pages
 
-        paginator = Paginator(products, 2)
-        current_page = data_request.get('currentPage')
-        last_page = paginator.num_pages
+            serialized = ProductSerializer(paginator.get_page(current_page),
+                                           many=True,
+                                           fields=[
+                                               'id',
+                                               'category',
+                                               'price',
+                                               'count',
+                                               'date',
+                                               'title',
+                                               'description',
+                                               'freeDelivery',
+                                               'images',
+                                               'reviews'
+                                           ],
+                                           context={'view': self})
 
-        serialized = ProductSerializer(paginator.get_page(current_page),
-                                       many=True,
-                                       fields=[
-                                           'id',
-                                           'category',
-                                           'price',
-                                           'count',
-                                           'date',
-                                           'title',
-                                           'description',
-                                           'freeDelivery',
-                                           'images',
-                                           'reviews'
-                                       ],
-                                       context={'view': self})
+            return Response({'items': serialized.data,
+                             'currentPage': current_page,
+                             'lastPage': last_page})
 
-        return Response({'items': serialized.data,
-                         'currentPage': current_page,
-                         'lastPage': last_page})
+        return Response({})
 
 
 class ProductLimitedListApiView(APIView):
@@ -180,24 +188,26 @@ class ProductPopularListApiView(APIView):
 
 class SalesListApiView(APIView):
     def get(self, request):
-        data = {
-          "items": [
-            {
-              "id": "123",
-              "price": 500.67,
-              "salePrice": 200.67,
-              "dateFrom": "2023-05-08",
-              "dateTo": "2023-05-20",
-              "title": "video card",
-              "images": [
-                "string"
-              ]
+        sales = Sale.objects.filter(date_to__gte=date.today()).order_by('date_to')
+
+        if sales.exists():
+            paginator = Paginator(sales, 1)
+            current_page = request.GET.get('currentPage')
+            last_page = paginator.num_pages
+
+            items = SaleSerializer(
+                paginator.get_page(current_page),
+                many=True
+            ).data
+
+            data = {
+                "items": items,
+                "currentPage": current_page,
+                "lastPage": last_page
             }
-          ],
-          "currentPage": 5,
-          "lastPage": 10
-        }
-        return Response(data)
+            return Response(data)
+
+        return Response({})
 
 
 class BannersListApiView(APIView):
