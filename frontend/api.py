@@ -517,7 +517,15 @@ class ProfileApiView(APIView):
 
 class ProfilePasswordApiView(APIView):
     def post(self, request):
-        return Response('')
+        user: User = request.user
+        current_password = request.data['passwordCurrent']
+        reply_password = request.data['passwordReply']
+
+        if user.check_password(current_password):
+            user.set_password(reply_password)
+            user.save()
+            return Response(status=200)
+        return Response(status=401)
 
 
 class ProfileAvatarApiView(APIView):
@@ -548,7 +556,7 @@ def sign_in(request: Request):
         if user is not None:
             login(request, user)
             return HttpResponse(status=200)
-        return HttpResponse(status=404)
+        return HttpResponse(status=401)
 
 
 def sign_out(request: Request):
