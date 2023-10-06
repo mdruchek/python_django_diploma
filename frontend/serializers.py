@@ -3,18 +3,21 @@ from rest_framework import serializers
 from rest_framework.request import Request
 from django.db import transaction
 from django.db.models import QuerySet
-from .models import (ProductCategory,
-                     ImageDepartments,
-                     Product,
-                     ImagesProducts,
-                     ReviewProduct,
-                     SpecificationProduct,
-                     Tag,
-                     Basket,
-                     ProductsInBaskets,
-                     Order,
-                     ProductsInOrders,
-                     OrderStatus)
+from .models import (
+    ProductCategory,
+    ImageDepartments,
+    Product,
+    ImagesProducts,
+    ReviewProduct,
+    SpecificationProduct,
+    Tag,
+    Basket,
+    ProductsInBaskets,
+    Order,
+    ProductsInOrders,
+    OrderStatus,
+    Sale
+)
 
 
 class ImageDepartmentsSerializer(serializers.ModelSerializer):
@@ -196,3 +199,25 @@ class OrderSerializer(serializers.ModelSerializer):
         order.totalCost = validated_data.get('totalCost')
         order.save()
         return order
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    salePrice = serializers.FloatField(source='sale_price')
+    dateFrom = serializers.DateField(source='date_from')
+    dateTo = serializers.DateField(source='date_to')
+
+    class Meta:
+        model = Sale
+        fields = [
+            'salePrice',
+            'dateFrom',
+            'dateTo'
+        ]
+
+    def to_representation(self, sale):
+        representations = super().to_representation(sale)
+        representations['id'] = sale.product.pk
+        representations['price'] = sale.product.price
+        representations['title'] = sale.product.title
+        representations['images'] = ImagesProductsSerializer(sale.product.images, many=True).data
+        return representations
