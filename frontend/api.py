@@ -1,4 +1,5 @@
 import json
+from random import randint
 from datetime import date
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.contrib.auth import authenticate, login, logout
@@ -95,17 +96,17 @@ class CatalogListApiView(APIView):
         sort = data_request.get(key='sort', default='title')
 
         if sort == 'rating':
-            products = sorted(products,
-                              key=(lambda obj: round(ReviewProduct.objects.filter(product=obj).aggregate(Avg('rate'))['rate__avg'], 1)
-                              if ReviewProduct.objects.filter(product=obj) else 0),
-                              reverse=True if sort_type =='-' else False)
+            products = (products
+                        .annotate(Avg('reviews__rate'))
+                        .order_by('{sort_type}reviews__rate__avg'.format(sort_type=sort_type)))
         elif sort == 'reviews':
-            products = sorted(products,
-                              key=(lambda obj: obj.reviews.all().count()),
-                              reverse=True if sort_type == '-' else False)
+            products = (products
+                        .annotate(Count('reviews'))
+                        .order_by('{sort_type}reviews__count'.format(sort_type=sort_type)))
         else:
-            products = products.order_by('{sort_type}{sort}'.format(sort_type=sort_type,
-                                                                    sort=sort))
+            products = (products
+                        .order_by('{sort_type}{sort}'.format(sort_type=sort_type,
+                                                             sort=sort)))
 
         tags = data_request.getlist('tags[]')
         if tags:
