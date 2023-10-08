@@ -97,12 +97,12 @@ class CatalogListApiView(APIView):
 
         if sort == 'rating':
             products = (products
-                        .annotate(Avg('reviews__rate'))
-                        .order_by('{sort_type}reviews__rate__avg'.format(sort_type=sort_type)))
+                        .annotate(rating_avg=Avg('reviews__rate'))
+                        .order_by('{sort_type}rating_avg'.format(sort_type=sort_type)))
         elif sort == 'reviews':
             products = (products
-                        .annotate(Count('reviews'))
-                        .order_by('{sort_type}reviews__count'.format(sort_type=sort_type)))
+                        .annotate(reviews_count=Count('reviews'))
+                        .order_by('{sort_type}reviews_count'.format(sort_type=sort_type)))
         else:
             products = (products
                         .order_by('{sort_type}{sort}'.format(sort_type=sort_type,
@@ -116,21 +116,25 @@ class CatalogListApiView(APIView):
             current_page = data_request.get('currentPage')
             last_page = paginator.num_pages
 
-            serialized = ProductSerializer(paginator.get_page(current_page),
-                                           many=True,
-                                           fields=[
-                                               'id',
-                                               'category',
-                                               'price',
-                                               'count',
-                                               'date',
-                                               'title',
-                                               'description',
-                                               'freeDelivery',
-                                               'images',
-                                               'reviews'
-                                           ],
-                                           context={'view': self})
+            serialized = ProductSerializer(
+                paginator.get_page(current_page),
+                many=True,
+                fields=[
+                    'id',
+                    'category',
+                    'price',
+                    'count',
+                    'date',
+                    'title',
+                    'description',
+                    'freeDelivery',
+                    'images',
+                    'reviews'
+                ],
+                context={
+                    'view': self
+                }
+            )
 
             return Response({'items': serialized.data,
                              'currentPage': current_page,

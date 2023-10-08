@@ -126,6 +126,10 @@ class Basket(models.Model):
                                       through='ProductsInBaskets',
                                       through_fields=('basket', 'product'))
 
+    class Meta:
+        verbose_name = 'корзина'
+        verbose_name_plural = 'корзины'
+
 
 class ProductsInBaskets(models.Model):
     basket = models.ForeignKey(Basket, verbose_name='Корзина', on_delete=models.PROTECT)
@@ -135,6 +139,10 @@ class ProductsInBaskets(models.Model):
 
 class OrderStatus(models.Model):
     status = models.CharField(verbose_name='Статус', max_length=50)
+
+    class Meta:
+        verbose_name = 'статус заказа'
+        verbose_name_plural = 'статаусы заказов'
 
     def __str__(self):
         return self.status
@@ -155,6 +163,12 @@ class Order(models.Model):
                                       verbose_name='Товар',
                                       through='ProductsInOrders',
                                       through_fields=('order', 'product'))
+
+    class Meta:
+        verbose_name = 'заказ'
+        verbose_name_plural = 'заказы'
+
+
 
 
 class ProductsInOrders(models.Model):
