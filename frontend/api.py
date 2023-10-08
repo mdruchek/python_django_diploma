@@ -15,6 +15,7 @@ from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
+from rest_framework.serializers import ModelSerializer
 from .serializers import (
     TagSerializer,
     ProductCategorySerializer,
@@ -41,17 +42,29 @@ from .models import (
 
 
 class ProductCategoryListApiView(ListAPIView):
-    queryset = ProductCategory.objects.filter(parent__isnull=True).prefetch_related('subcategories').prefetch_related('image')
-    serializer_class = ProductCategorySerializer
+    """
+    ApiView для возврата категорий товаров
+    """
+
+    queryset: QuerySet = ProductCategory.objects.filter(parent__isnull=True).prefetch_related('subcategories').prefetch_related('image')
+    serializer_class: ModelSerializer = ProductCategorySerializer
 
 
 class ProductDetailApiView(RetrieveAPIView):
-    serializer_class = ProductSerializer
+    """
+    ApiView для возврата детальная информация о товаре
+    """
+
     queryset = Product.objects.all()
-    lookup_field = 'id'
+    serializer_class: ModelSerializer = ProductSerializer
+    lookup_field: str = 'id'
 
 
 class ProductReviewApiView(ListCreateAPIView):
+    """
+    ApiView для отображения и создания отзывов
+    """
+
     serializer_class = ReviewProductSerializer
 
     def create(self, request, *args, **kwargs):
