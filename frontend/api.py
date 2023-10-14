@@ -1,21 +1,19 @@
 import json
 from random import randint
+
 from datetime import date
-from django.http import HttpRequest, HttpResponse, QueryDict
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.admin import User
-from django.db import IntegrityError, transaction
+from django.http import QueryDict
 from django.db.models import Avg, Count, QuerySet
-from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.conf import settings
+
 from rest_framework import viewsets
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, CreateAPIView, GenericAPIView, RetrieveUpdateAPIView
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.serializers import ModelSerializer
+
 from .serializers import (
     TagSerializer,
     ProductCategorySerializer,
@@ -24,10 +22,8 @@ from .serializers import (
     OrderSerializer,
     SaleSerializer
 )
+
 from .models import (
-    UserProfile,
-    UserAvatar,
-    UserRole,
     ProductCategory,
     Product,
     ReviewProduct,
@@ -35,7 +31,6 @@ from .models import (
     Basket,
     ProductsInBaskets,
     Order,
-    ProductsInOrders,
     OrderStatus,
     Sale
 )
@@ -513,148 +508,9 @@ class PaymentApiView(APIView):
         return Response(status=200)
 
 
-class ProfileApiView(APIView):
-    """
-    ApiView для отображения и изменения профиля
-    """
-    def get(self, request):
-        if request.user.is_authenticated:
-            data = {
-              "fullName": '{last_name} {first_name} {patronymic}'.format(last_name=request.user.last_name,
-                                                                         first_name=request.user.first_name,
-                                                                         patronymic=request.user.userprofile.patronymic),
-              "email": request.user.email,
-              "phone": request.user.userprofile.phone,
-              "avatar": {
-                "src": request.user.useravatar.src.url,
-                "alt": "Image alt string"
-              }
-            }
-            return Response(data)
-        return Response(status=401)
-
-    def post(self, request):
-        if request.user.is_authenticated:
-            data_request = request.data
-
-            full_name_list = data_request['fullName'].split()
-            last_name, first_name, patronymic = '', '', ''
-            if len(full_name_list) == 3:
-                last_name, first_name, patronymic = full_name_list
-            elif len(full_name_list) == 2:
-                last_name, first_name = full_name_list
-            elif len(full_name_list) == 1:
-                first_name = full_name_list[0]
-
-            user = User.objects.filter(id=request.user.id)
-            user_profile = UserProfile.objects.filter(user=request.user)
-
-            user.update(first_name=first_name, last_name=last_name, email=data_request['email'])
-
-            user_profile.update(phone=data_request['phone'], patronymic=patronymic)
-
-            user = User.objects.filter(id=request.user.id)
-            user_profile = UserProfile.objects.filter(user=request.user)
-
-            data_response = {
-              "fullName": '{last_name} {first_name} {patronymic}'.format(last_name=user[0].last_name,
-                                                                         first_name=user[0].first_name,
-                                                                         patronymic=user_profile[0].patronymic),
-              "email": user[0].email,
-              "phone": user_profile[0].phone,
-              "avatar": {
-                "src": request.user.useravatar.src.url,
-                "alt": "Image alt string"
-              }
-            }
-            return Response(data_response)
-        return Response(status=401)
-
-
-class ProfilePasswordApiView(APIView):
-    """
-    ApiView для изменения пароля
-    """
-    def post(self, request):
-        user: User = request.user
-        current_password = request.data['passwordCurrent']
-        reply_password = request.data['passwordReply']
-
-        if user.check_password(current_password):
-            user.set_password(reply_password)
-            user.save()
-            return Response(status=200)
-        return Response(status=401)
-
-
-class ProfileAvatarApiView(APIView):
-    """
-    ApiView для изменения аватарки
-    """
-    def post(self, request):
-        avatar = request.data['avatar']
-        user_avatar, created = UserAvatar.objects.update_or_create(
-            user=request.user,
-            defaults={'src': avatar, 'alt': "Image alt string"}
-        )
-        data = {
-          "src": user_avatar.src.url,
-          "alt": "Image alt string"
-        }
-        return Response(data)
-
-
 class TagViewSet(viewsets.ModelViewSet):
     """
     ApiView для отображения тегов
     """
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-
-
-def sign_in(request: Request):
-    """
-    Функция авторизации
-    """
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        username = data['username']
-        password = data['password']
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return HttpResponse(status=200)
-        return HttpResponse(status=401)
-
-
-def sign_out(request: Request):
-    """
-    Функция выхода
-    """
-    logout(request)
-    return HttpResponse(status=200)
-
-
-def sign_up(request: HttpRequest):
-    """
-    Функция регистрации
-    """
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        name = data['username']
-        username = data['username']
-        password = data['password']
-        user = User(first_name=name, username=username)
-        user.set_password(password)
-        try:
-            user.full_clean()
-        except ValidationError:
-            return HttpResponse(status=401)
-        try:
-            user.save()
-        except IntegrityError:
-            return HttpResponse(status=401)
-        user_role = UserRole.objects.get(title='Покупатель')
-        UserProfile.objects.create(user=user, role=user_role)
-        login(request, user)
-        return HttpResponse(status=201)

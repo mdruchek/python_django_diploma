@@ -1,9 +1,7 @@
-import os
 from pathlib import Path, PurePath
 from io import TextIOWrapper
 from csv import DictReader
 
-from django.core.files.images import ImageFile
 from django.contrib import admin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
@@ -13,9 +11,6 @@ from django.core.files import File
 import settings.settings
 from .models import (
     ProductCategory,
-    UserProfile,
-    UserRole,
-    UserAvatar,
     Product,
     SpecificationProduct,
     Tag,
@@ -32,25 +27,6 @@ from .admin_mixins import ExportAsCSVMixin
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'user_full_name']
-
-    @admin.display(ordering='user__username', description='ФИО')
-    def user_full_name(self, obj):
-        return '{first_name} {last_name}'.format(first_name=obj.user.first_name, last_name=obj.user.last_name)
-
-
-@admin.register(UserRole)
-class UserRoleAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(UserAvatar)
-class UserAvatarAdmin(admin.ModelAdmin):
     pass
 
 

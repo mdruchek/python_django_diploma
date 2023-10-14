@@ -1,0 +1,827 @@
+[
+{
+  "model": "frontend.imagedepartments",
+  "pk": 1,
+  "fields": {
+    "src": "/static/frontend/assets/img/icons/departments/6.svg",
+    "alt": "Komputers icon category"
+  }
+},
+{
+  "model": "frontend.productcategory",
+  "pk": 1,
+  "fields": {
+    "title": "Комплектующие для компьютера",
+    "parent": null,
+    "is_active": true,
+    "image": 1
+  }
+},
+{
+  "model": "frontend.productcategory",
+  "pk": 2,
+  "fields": {
+    "title": "Материнские платы",
+    "parent": 1,
+    "is_active": true,
+    "image": 1
+  }
+},
+{
+  "model": "frontend.productcategory",
+  "pk": 3,
+  "fields": {
+    "title": "Процессоры",
+    "parent": 1,
+    "is_active": true,
+    "image": 1
+  }
+},
+{
+  "model": "frontend.productcategory",
+  "pk": 4,
+  "fields": {
+    "title": "Бытовая техника",
+    "parent": null,
+    "is_active": true,
+    "image": 1
+  }
+},
+{
+  "model": "frontend.productcategory",
+  "pk": 5,
+  "fields": {
+    "title": "Пылесосы",
+    "parent": 4,
+    "is_active": true,
+    "image": 1
+  }
+},
+{
+  "model": "frontend.productcategory",
+  "pk": 6,
+  "fields": {
+    "title": "Хлебопечки",
+    "parent": 4,
+    "is_active": true,
+    "image": 1
+  }
+},
+{
+  "model": "frontend.userrole",
+  "pk": 1,
+  "fields": {
+    "title": "Покупатель"
+  }
+},
+{
+  "model": "frontend.useravatar",
+  "pk": 1,
+  "fields": {
+    "src": "default_icon_product_wXHBvDd.jpg",
+    "alt": "Image alt string",
+    "user": 7
+  }
+},
+{
+  "model": "frontend.userprofile",
+  "pk": 2,
+  "fields": {
+    "patronymic": "Незнайкович",
+    "phone": "+71234567890",
+    "user": 7,
+    "role": 1
+  }
+},
+{
+  "model": "frontend.tag",
+  "pk": 1,
+  "fields": {
+    "name": "Компьютеры"
+  }
+},
+{
+  "model": "frontend.tag",
+  "pk": 2,
+  "fields": {
+    "name": "Бытовая техника"
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 73,
+  "fields": {
+    "category": 3,
+    "price": 100.0,
+    "count": 6,
+    "date": "2023-08-13T16:18:24.107Z",
+    "title": "Процессор1",
+    "description": "Описание порцессора1",
+    "fullDescription": "Полное описание процессора1",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": [
+      1
+    ]
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 74,
+  "fields": {
+    "category": 2,
+    "price": 992.9,
+    "count": 4,
+    "date": "2023-08-13T16:18:24.107Z",
+    "title": "Материнская плата1",
+    "description": "Описание материнской платы1",
+    "fullDescription": "Полное описание материнской платы1",
+    "freeDelivery": false,
+    "limited_edition": false,
+    "tags": [
+      1
+    ]
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 75,
+  "fields": {
+    "category": 5,
+    "price": 100.0,
+    "count": 6,
+    "date": "2023-08-13T16:18:24.107Z",
+    "title": "Пылесос1",
+    "description": "Описание пылесоса1",
+    "fullDescription": "Полное описание пылесоса1",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": [
+      2
+    ]
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 76,
+  "fields": {
+    "category": 6,
+    "price": 992.9,
+    "count": 9,
+    "date": "2023-08-13T16:18:24.107Z",
+    "title": "Хлебопечка1",
+    "description": "Описание хлебопечки1",
+    "fullDescription": "Полное описание хлебопечки1",
+    "freeDelivery": false,
+    "limited_edition": false,
+    "tags": [
+      2
+    ]
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 77,
+  "fields": {
+    "category": 3,
+    "price": 99.0,
+    "count": 10,
+    "date": "2023-08-16T10:00:56.234Z",
+    "title": "Процессор2",
+    "description": "Описание порцессора2",
+    "fullDescription": "Полное описание процессора2",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 78,
+  "fields": {
+    "category": 2,
+    "price": 200.0,
+    "count": 12,
+    "date": "2023-08-16T10:00:56.234Z",
+    "title": "Материнская плата2",
+    "description": "Описание материнской платы2",
+    "fullDescription": "Полное описание материнской платы2",
+    "freeDelivery": false,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 79,
+  "fields": {
+    "category": 5,
+    "price": 80.0,
+    "count": 4,
+    "date": "2023-08-16T10:00:56.234Z",
+    "title": "Пылесос2",
+    "description": "Описание пылесоса2",
+    "fullDescription": "Полное описание пылесоса2",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 80,
+  "fields": {
+    "category": 6,
+    "price": 99.9,
+    "count": 12,
+    "date": "2023-08-16T10:00:56.234Z",
+    "title": "Хлебопечка2",
+    "description": "Описание хлебопечки2",
+    "fullDescription": "Полное описание хлебопечки2",
+    "freeDelivery": false,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 81,
+  "fields": {
+    "category": 3,
+    "price": 99.0,
+    "count": 10,
+    "date": "2023-08-16T10:18:04.179Z",
+    "title": "Процессор2",
+    "description": "Описание порцессора2",
+    "fullDescription": "Полное описание процессора2",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 82,
+  "fields": {
+    "category": 2,
+    "price": 200.0,
+    "count": 12,
+    "date": "2023-08-16T10:18:04.179Z",
+    "title": "Материнская плата2",
+    "description": "Описание материнской платы2",
+    "fullDescription": "Полное описание материнской платы2",
+    "freeDelivery": false,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 83,
+  "fields": {
+    "category": 5,
+    "price": 80.0,
+    "count": 4,
+    "date": "2023-08-16T10:18:04.179Z",
+    "title": "Пылесос2",
+    "description": "Описание пылесоса2",
+    "fullDescription": "Полное описание пылесоса2",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 84,
+  "fields": {
+    "category": 6,
+    "price": 99.9,
+    "count": 12,
+    "date": "2023-08-16T10:18:04.179Z",
+    "title": "Хлебопечка2",
+    "description": "Описание хлебопечки2",
+    "fullDescription": "Полное описание хлебопечки2",
+    "freeDelivery": false,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 85,
+  "fields": {
+    "category": 3,
+    "price": 99.0,
+    "count": 10,
+    "date": "2023-08-16T10:21:22.864Z",
+    "title": "Процессор2",
+    "description": "Описание порцессора2",
+    "fullDescription": "Полное описание процессора2",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 86,
+  "fields": {
+    "category": 2,
+    "price": 200.0,
+    "count": 12,
+    "date": "2023-08-16T10:21:22.864Z",
+    "title": "Материнская плата2",
+    "description": "Описание материнской платы2",
+    "fullDescription": "Полное описание материнской платы2",
+    "freeDelivery": false,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 87,
+  "fields": {
+    "category": 5,
+    "price": 80.0,
+    "count": 4,
+    "date": "2023-08-16T10:21:22.864Z",
+    "title": "Пылесос2",
+    "description": "Описание пылесоса2",
+    "fullDescription": "Полное описание пылесоса2",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 88,
+  "fields": {
+    "category": 6,
+    "price": 99.9,
+    "count": 12,
+    "date": "2023-08-16T10:21:22.864Z",
+    "title": "Хлебопечка2",
+    "description": "Описание хлебопечки2",
+    "fullDescription": "Полное описание хлебопечки2",
+    "freeDelivery": false,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 89,
+  "fields": {
+    "category": 3,
+    "price": 99.0,
+    "count": 10,
+    "date": "2023-08-16T10:29:28.144Z",
+    "title": "Процессор2",
+    "description": "Описание порцессора2",
+    "fullDescription": "Полное описание процессора2",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 90,
+  "fields": {
+    "category": 2,
+    "price": 200.0,
+    "count": 12,
+    "date": "2023-08-16T10:29:28.144Z",
+    "title": "Материнская плата2",
+    "description": "Описание материнской платы2",
+    "fullDescription": "Полное описание материнской платы2",
+    "freeDelivery": false,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 91,
+  "fields": {
+    "category": 5,
+    "price": 80.0,
+    "count": 4,
+    "date": "2023-08-16T10:29:28.144Z",
+    "title": "Пылесос2",
+    "description": "Описание пылесоса2",
+    "fullDescription": "Полное описание пылесоса2",
+    "freeDelivery": true,
+    "limited_edition": false,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.product",
+  "pk": 92,
+  "fields": {
+    "category": 6,
+    "price": 99.9,
+    "count": 12,
+    "date": "2023-08-16T10:29:28.144Z",
+    "title": "Хлебопечка2",
+    "description": "Описание хлебопечки2",
+    "fullDescription": "Полное описание хлебопечки2",
+    "freeDelivery": false,
+    "limited_edition": true,
+    "tags": []
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 12,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 73
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 13,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 74
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 14,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 75
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 15,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 76
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 16,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 78
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 17,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 80
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 18,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 79
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 19,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 77
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 20,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 89
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 21,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 90
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 22,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 91
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 23,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 92
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 24,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 81
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 25,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 84
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 26,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 82
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 27,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 83
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 28,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 85
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 29,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 86
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 30,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 87
+  }
+},
+{
+  "model": "frontend.imagesproducts",
+  "pk": 31,
+  "fields": {
+    "src": "img/products/default_icon_product.jpg",
+    "alt": "Image alt string",
+    "product": 88
+  }
+},
+{
+  "model": "frontend.basket",
+  "pk": 5,
+  "fields": {
+    "user": 1
+  }
+},
+{
+  "model": "frontend.orderstatus",
+  "pk": 1,
+  "fields": {
+    "status": "На оформлении"
+  }
+},
+{
+  "model": "frontend.orderstatus",
+  "pk": 2,
+  "fields": {
+    "status": "Ожидает оплаты"
+  }
+},
+{
+  "model": "frontend.order",
+  "pk": 1,
+  "fields": {
+    "createdAt": "2023-09-27T18:27:25.025Z",
+    "fullName": "nez",
+    "email": "nez@mail.ru",
+    "phone": "+71234567890",
+    "deliveryType": null,
+    "paymentType": "someone",
+    "totalCost": 3971.6,
+    "status": 2,
+    "city": "Сол",
+    "address": "ул"
+  }
+},
+{
+  "model": "frontend.order",
+  "pk": 2,
+  "fields": {
+    "createdAt": "2023-09-27T18:33:09.547Z",
+    "fullName": null,
+    "email": null,
+    "phone": null,
+    "deliveryType": null,
+    "paymentType": null,
+    "totalCost": 3971.6,
+    "status": 1,
+    "city": null,
+    "address": null
+  }
+},
+{
+  "model": "frontend.order",
+  "pk": 3,
+  "fields": {
+    "createdAt": "2023-09-27T18:35:24.483Z",
+    "fullName": "Незнайков Незнайка Незнайкович",
+    "email": "nez@mail.ru",
+    "phone": "+71234567890",
+    "deliveryType": null,
+    "paymentType": null,
+    "totalCost": 992.9,
+    "status": 2,
+    "city": "сол",
+    "address": "ул"
+  }
+},
+{
+  "model": "frontend.order",
+  "pk": 4,
+  "fields": {
+    "createdAt": "2023-09-27T18:42:39.252Z",
+    "fullName": "Незнайков Незнайка Незнайкович",
+    "email": "nez@mail.ru",
+    "phone": "+71234567890",
+    "deliveryType": null,
+    "paymentType": null,
+    "totalCost": 992.9,
+    "status": 2,
+    "city": "Сол",
+    "address": "ул"
+  }
+},
+{
+  "model": "frontend.productsinorders",
+  "pk": 1,
+  "fields": {
+    "order": 1,
+    "product": 74,
+    "count": 4
+  }
+},
+{
+  "model": "frontend.productsinorders",
+  "pk": 2,
+  "fields": {
+    "order": 2,
+    "product": 74,
+    "count": 4
+  }
+},
+{
+  "model": "frontend.productsinorders",
+  "pk": 3,
+  "fields": {
+    "order": 3,
+    "product": 74,
+    "count": 1
+  }
+},
+{
+  "model": "frontend.productsinorders",
+  "pk": 4,
+  "fields": {
+    "order": 4,
+    "product": 74,
+    "count": 1
+  }
+},
+{
+  "model": "frontend.reviewproduct",
+  "pk": 1,
+  "fields": {
+    "author": "nez",
+    "email": "nez@mail.ru",
+    "text": "Хорошо",
+    "rate": 5,
+    "date": "2023-08-21T18:35:44.820Z",
+    "product": 73
+  }
+},
+{
+  "model": "frontend.reviewproduct",
+  "pk": 2,
+  "fields": {
+    "author": "nez",
+    "email": "nez@mail.ru",
+    "text": "хорошо",
+    "rate": 5,
+    "date": "2023-08-21T18:37:17.940Z",
+    "product": 73
+  }
+},
+{
+  "model": "frontend.reviewproduct",
+  "pk": 3,
+  "fields": {
+    "author": "туя",
+    "email": "zn@ex.ru",
+    "text": "отлично",
+    "rate": 3,
+    "date": "2023-08-21T18:40:09.988Z",
+    "product": 74
+  }
+},
+{
+  "model": "frontend.reviewproduct",
+  "pk": 4,
+  "fields": {
+    "author": "nez",
+    "email": "nez@mail.ru",
+    "text": "плохо",
+    "rate": 3,
+    "date": "2023-08-21T18:42:31.669Z",
+    "product": 74
+  }
+},
+{
+  "model": "frontend.reviewproduct",
+  "pk": 5,
+  "fields": {
+    "author": "nez",
+    "email": "nez@mail.ru",
+    "text": "gkj[j",
+    "rate": 5,
+    "date": "2023-08-21T18:43:48.580Z",
+    "product": 74
+  }
+},
+{
+  "model": "frontend.specificationproduct",
+  "pk": 1,
+  "fields": {
+    "name": "Количество ядер",
+    "value": "5",
+    "product": 73
+  }
+},
+{
+  "model": "frontend.specificationproduct",
+  "pk": 2,
+  "fields": {
+    "name": "Частота",
+    "value": "3.4ГГц",
+    "product": 73
+  }
+},
+{
+  "model": "frontend.sale",
+  "pk": 1,
+  "fields": {
+    "product": 75,
+    "sale_price": 99.0,
+    "date_from": "2023-10-06",
+    "date_to": "2023-10-10"
+  }
+}
+]

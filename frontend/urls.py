@@ -1,25 +1,23 @@
 from django.urls import path
 from django.views.generic import TemplateView
+
 from rest_framework import routers
-from .api import (ProductCategoryListApiView,
-                  ProductDetailApiView,
-                  ProductReviewApiView,
-                  CatalogListApiView,
-                  TagViewSet,
-                  ProductLimitedListApiView,
-                  ProductPopularListApiView,
-                  SalesListApiView,
-                  BannersListApiView,
-                  BasketListApiView,
-                  OrderListApiView,
-                  OrderDetailApiView,
-                  PaymentApiView,
-                  ProfileApiView,
-                  ProfilePasswordApiView,
-                  ProfileAvatarApiView,
-                  sign_in,
-                  sign_out,
-                  sign_up)
+
+from .api import (
+    ProductCategoryListApiView,
+    ProductDetailApiView,
+    ProductReviewApiView,
+    CatalogListApiView,
+    TagViewSet,
+    ProductLimitedListApiView,
+    ProductPopularListApiView,
+    SalesListApiView,
+    BannersListApiView,
+    BasketListApiView,
+    OrderListApiView,
+    OrderDetailApiView,
+    PaymentApiView,
+)
 
 
 router = routers.DefaultRouter()
@@ -56,12 +54,6 @@ urlpatterns = [
     path('api/orders/', OrderListApiView.as_view()),
     path('api/order/<int:id>/', OrderDetailApiView.as_view()),
     path('api/payment/<int:id>/', PaymentApiView.as_view()),
-    path('api/profile/', ProfileApiView.as_view()),
-    path('api/profile/password/', ProfilePasswordApiView.as_view()),
-    path('api/profile/avatar/', ProfileAvatarApiView.as_view()),
-    path('api/sign-in/', sign_in),
-    path('api/sign-out/', sign_out),
-    path('api/sign-up/', sign_up),
 ]
 
 urlpatterns += router.urls
