@@ -62,7 +62,7 @@ class ProductDetailApiView(RetrieveAPIView):
 
 class ProductReviewApiView(ListCreateAPIView):
     """
-    ApiView для отображения и создания отзывов
+    ApiView для возврата и создания отзывов
     """
 
     serializer_class = ReviewProductSerializer
@@ -76,6 +76,9 @@ class ProductReviewApiView(ListCreateAPIView):
 
 
 class CatalogListApiView(APIView):
+    """
+    ApiView для возврата каталога
+    """
     def get(self, request):
         data_request: QueryDict = request.GET
 
@@ -157,6 +160,9 @@ class CatalogListApiView(APIView):
 
 
 class ProductLimitedListApiView(APIView):
+    """
+    ApiView для возврата лимитированных товаров
+    """
     def get(self, request):
         products = Product.objects.filter(limited_edition=True, count__gt=0)[:15]
         serialized = ProductSerializer(products,
@@ -180,6 +186,9 @@ class ProductLimitedListApiView(APIView):
 
 
 class ProductPopularListApiView(APIView):
+    """
+    ApiView для возврата популярных товаров
+    """
     def get(self, request):
         products = (Product.objects.filter(reviews__isnull=False)
                     .annotate(reviews_count=Count('reviews'))
@@ -206,6 +215,9 @@ class ProductPopularListApiView(APIView):
 
 
 class SalesListApiView(APIView):
+    """
+    ApiView для возврата скидок
+    """
     def get(self, request):
         sales = Sale.objects.filter(date_to__gte=date.today()).order_by('date_to')
 
@@ -230,6 +242,9 @@ class SalesListApiView(APIView):
 
 
 class BannersListApiView(APIView):
+    """
+    ApiView для возврата баннера
+    """
     def get(self, request):
         id_products_list = Product.objects.values_list('id', flat=True)
         banner_products = []
@@ -258,6 +273,9 @@ class BannersListApiView(APIView):
 
 
 class BasketListApiView(APIView):
+    """
+    ApiView для возврата, добавления, удаления товаров из корзину
+    """
     def get(self, request: Request):
         basket_id: Basket = request.session.get('basket', False)
 
@@ -431,6 +449,9 @@ class BasketListApiView(APIView):
 
 
 class OrderListApiView(ListCreateAPIView):
+    """
+    ApiView для возврата списка заказов
+    """
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
 
@@ -447,6 +468,9 @@ class OrderListApiView(ListCreateAPIView):
 
 
 class OrderDetailApiView(RetrieveUpdateAPIView):
+    """
+    ApiView для возврата и редактирования заказов
+    """
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
     lookup_field = 'id'
@@ -479,6 +503,9 @@ class OrderDetailApiView(RetrieveUpdateAPIView):
 
 
 class PaymentApiView(APIView):
+    """
+    ApiView для оплаты
+    """
     def post(self, request, id):
         order = Order.objects.get(id=id)
         order.status = OrderStatus.objects.get('Оплачен')
@@ -487,6 +514,9 @@ class PaymentApiView(APIView):
 
 
 class ProfileApiView(APIView):
+    """
+    ApiView для отображения и изменения профиля
+    """
     def get(self, request):
         if request.user.is_authenticated:
             data = {
@@ -542,6 +572,9 @@ class ProfileApiView(APIView):
 
 
 class ProfilePasswordApiView(APIView):
+    """
+    ApiView для изменения пароля
+    """
     def post(self, request):
         user: User = request.user
         current_password = request.data['passwordCurrent']
@@ -555,6 +588,9 @@ class ProfilePasswordApiView(APIView):
 
 
 class ProfileAvatarApiView(APIView):
+    """
+    ApiView для изменения аватарки
+    """
     def post(self, request):
         avatar = request.data['avatar']
         user_avatar, created = UserAvatar.objects.update_or_create(
@@ -569,11 +605,17 @@ class ProfileAvatarApiView(APIView):
 
 
 class TagViewSet(viewsets.ModelViewSet):
+    """
+    ApiView для отображения тегов
+    """
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 
 def sign_in(request: Request):
+    """
+    Функция авторизации
+    """
     if request.method == 'POST':
         data = json.loads(request.body)
         username = data['username']
@@ -586,11 +628,17 @@ def sign_in(request: Request):
 
 
 def sign_out(request: Request):
+    """
+    Функция выхода
+    """
     logout(request)
     return HttpResponse(status=200)
 
 
 def sign_up(request: HttpRequest):
+    """
+    Функция регистрации
+    """
     if request.method == 'POST':
         data = json.loads(request.body)
         name = data['username']
