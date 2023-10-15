@@ -1,7 +1,8 @@
 import json
 from random import randint
-
 from datetime import date
+from typing import Dict
+
 from django.http import QueryDict
 from django.db.models import Avg, Count, QuerySet
 from django.core.paginator import Paginator
@@ -33,6 +34,13 @@ from .models import (
     Order,
     OrderStatus,
     Sale
+)
+
+from .services import (
+    filtering_products_by_price,
+    filtering_products_by_name,
+    filtering_product_by_category,
+    filtering_product_by_equality_key
 )
 
 
@@ -74,27 +82,25 @@ class CatalogListApiView(APIView):
     """
     ApiView для возврата каталога
     """
-    def get(self, request):
+    def get(self, request: Request) -> Dict:
         data_request: QueryDict = request.GET
+        products: QuerySet = Product.objects.prefetch_related('images').prefetch_related('reviews')
 
-        products = ((Product.objects.filter(price__gte=int(data_request.get('filter[minPrice]', 0)),
-                                            price__lte=int(data_request.get('filter[maxPrice]', 500000)))
-                     .prefetch_related('images'))
-                    .prefetch_related('reviews'))
+        products = filtering_products_by_price(
+            products=products,
+            min_price=data_request.get('filter[minPrice]'),
+            max_price=data_request.get('filter[maxPrice]')
+        )
 
-        if data_request.get('category', False):
-            category = ProductCategory.objects.get(id=data_request['category'])
-            if category.parent:
-                products = products.filter(category=data_request['category'])
-            else:
-                categories = ProductCategory.objects.filter(parent=category)
-                products = products.filter(category__in=(category.id for category in categories))
+        products = filtering_products_by_name(products, data_request.get('filter[name]'))
 
-        if data_request.get('filter[name]', ''):
-            products = products.filter(title__contains=data_request['filter[name]'])
+        category = data_request.get('category', False)
 
-        if data_request.get('filter[freeDelivery]', False) == 'true':
-            products = products.filter(freeDelivery=True)
+        if category:
+            products = filtering_product_by_category(products, data_request['category'])
+
+        products = filtering_product_by_equality_key(products,
+                                                     freeDelivery=data_request.get('filter[freeDelivery]'))
 
         if data_request.get('filter[available]') == 'true':
             products = products.filter(count__gt=0)
