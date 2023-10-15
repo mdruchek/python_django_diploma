@@ -71,7 +71,6 @@ class ProductReviewApiView(ListCreateAPIView):
     serializer_class = ReviewProductSerializer
 
     def create(self, request, *args, **kwargs):
-        self.queryset = ReviewProduct.objects.filter(product_id=kwargs['id'])
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(product=Product.objects.get(id=kwargs['id']))
