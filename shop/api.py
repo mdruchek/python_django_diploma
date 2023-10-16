@@ -10,6 +10,7 @@ from django.conf import settings
 
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
@@ -447,17 +448,18 @@ class OrderDetailApiView(RetrieveUpdateAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
     lookup_field = 'id'
+    permission_classes = [
+        IsAuthenticated
+    ]
 
     def get(self, request, id):
         serialized_order = self.get_serializer(Order.objects.get(id=id))
-        if request.user.is_authenticated:
-            response_data = dict()
-            response_data.update(serialized_order.data)
-            response_data['fullName'] = str(request.user.userprofile)
-            response_data['phone'] = request.user.userprofile.phone
-            response_data['email'] = request.user.email
-            return Response(response_data)
-        return Response(serialized_order.data)
+        response_data = dict()
+        response_data.update(serialized_order.data)
+        response_data['fullName'] = str(request.user.userprofile)
+        response_data['phone'] = request.user.userprofile.phone
+        response_data['email'] = request.user.email
+        return Response(response_data)
 
     def post(self, request: Request, *args, **kwargs):
         serialised_order = self.get_serializer(self.get_object(),
