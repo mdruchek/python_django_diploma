@@ -1,4 +1,6 @@
 from statistics import mean
+from typing import Dict, Union
+
 from rest_framework import serializers
 from rest_framework.request import Request
 from django.db import transaction
@@ -21,24 +23,36 @@ from .models import (
 
 
 class ImageDepartmentsSerializer(serializers.ModelSerializer):
+    """
+    Сериалайзер изображения категории товара
+    """
+
     class Meta:
         model = ImageDepartments
         fields = ['src', 'alt']
 
 
 class ProductCategorySerializer(serializers.ModelSerializer):
+    """
+    Сериалайзер категории товара
+    """
+
     image = ImageDepartmentsSerializer(read_only=True)
 
     class Meta:
         model = ProductCategory
         fields = ['id', 'title', 'image', 'subcategories']
 
-    def to_representation(self, instance):
+    def to_representation(self, instance) -> Dict:
         self.fields['subcategories'] = ProductCategorySerializer(many=True, read_only=True)
         return super(ProductCategorySerializer, self).to_representation(instance)
 
 
 class ImagesProductsSerializer(serializers.ModelSerializer):
+    """
+    Сериалайзер изображения товара
+    """
+
     class Meta:
         model = ImagesProducts
         fields = [
@@ -48,6 +62,10 @@ class ImagesProductsSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """
+    Сериалайзер тэгов товара
+    """
+
     class Meta:
         model = Tag
         fields = [
@@ -57,6 +75,10 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class ReviewProductSerializer(serializers.ModelSerializer):
+    """
+    Сериалайзер отзывов о товаре
+    """
+
     class Meta:
         model = ReviewProduct
         fields = [
@@ -69,6 +91,10 @@ class ReviewProductSerializer(serializers.ModelSerializer):
 
 
 class SpecificationProductSerializer(serializers.ModelSerializer):
+    """
+    Сериалайзер спецификации товара
+    """
+
     class Meta:
         model = SpecificationProduct
         fields = [
@@ -78,6 +104,10 @@ class SpecificationProductSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    """
+    Сериалайзер товара
+    """
+
     count = serializers.SerializerMethodField()
     images = ImagesProductsSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
@@ -112,24 +142,46 @@ class ProductSerializer(serializers.ModelSerializer):
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
 
-    def to_representation(self, instance: Product):
+    def to_representation(self, instance: Product) -> Dict:
         representations = super().to_representation(instance)
         rate_list = instance.reviews.values_list('rate', flat=True)
         representations['rating'] = round(mean(rate_list), 1) if rate_list else None
         return representations
 
-    def get_reviews(self, product):
+    def get_reviews(self, product: Product) -> Union[Dict, int]:
+        """
+        Возвращает отзывы или количество отзывов о товаре
+        в зависимости откуда был вызван сериалайзер
+        
+        :param product: Товар
+        :type product: Product
+        :rtype: Dict | int
+        """
+
         if self.context.get('view').__class__.__name__ == 'ProductDetailApiView':
             return ReviewProductSerializer(product.reviews.all(), many=True).data
         return product.reviews.count()
 
-    def get_count(self, product):
+    def get_count(self, product, Product) -> int:
+        """
+        Возвращает количество товара
+
+        :param product: Товар
+        :type product: Product
+        :return: количество товара
+        :rtype: int
+        """
+
         if self.context.get('count', False):
             return self.context['count'][product.id]
         return product.count
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    """
+    Сериалайзер заказа
+    """
+
     status = serializers.SerializerMethodField()
     products = serializers.SerializerMethodField()
 
@@ -150,10 +202,28 @@ class OrderSerializer(serializers.ModelSerializer):
             'products',
         ]
 
-    def get_status(self, order):
+    def get_status(self, order: Order) -> str:
+        """
+        Возвращает статус заказа
+
+        :param order: Заказ
+        :type order: Order
+        :return: Статус заказа
+        :rtype: str
+        """
+
         return order.status.status
 
-    def get_products(self, order):
+    def get_products(self, order: Order) -> Dict:
+        """
+        Возвращает данные о товаре
+
+        :param order: Заказ
+        :type order: Order
+        :return: Данныне о товаре
+        :rtype: Dict
+        """
+
         products: QuerySet = order.products.all()
         serialised_products = ProductSerializer(
             products,
@@ -202,6 +272,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class SaleSerializer(serializers.ModelSerializer):
+    """
+    Сериалайзер скидок
+    """
+
     salePrice = serializers.FloatField(source='sale_price')
     dateFrom = serializers.DateField(source='date_from')
     dateTo = serializers.DateField(source='date_to')
