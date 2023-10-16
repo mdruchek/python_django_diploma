@@ -141,6 +141,7 @@ class ProductLimitedListApiView(APIView):
 
     def get(self, request):
         products = Product.objects.filter(limited_edition=True, count__gt=0)[:15]
+        print(products)
         serialized = ProductSerializer(products,
                                        many=True,
                                        fields=[

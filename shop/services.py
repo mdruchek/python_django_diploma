@@ -10,6 +10,19 @@ from .models import (
 
 
 def sorting_products(queryset: QuerySet, sort: str, sort_type: str) -> QuerySet:
+    """
+    Сортирует QuerySet товара
+
+    :param queryset: queryset товара
+    :type queryset: QuerySet
+    :param sort: Параметр сортировки
+    :type sort: str
+    :param sort_type: Тип сортировки
+    :type sort_type: str
+    :return products: отсортированный queryset
+    :rtype products: QuerySet
+    """
+
     if sort_type == 'inc':
         sort_type = '-'
     else:
@@ -37,6 +50,10 @@ def sorting_products(queryset: QuerySet, sort: str, sort_type: str) -> QuerySet:
 
 
 class ProductFilter(django_filters.FilterSet):
+    """
+    Класс фильтрации товара
+    """
+
     price = django_filters.RangeFilter()
     title = django_filters.CharFilter(lookup_expr='contains')
     freeDelivery = django_filters.BooleanFilter(method='filter_free_delivery')
@@ -55,17 +72,56 @@ class ProductFilter(django_filters.FilterSet):
             'tags',
         ]
 
-    def filter_free_delivery(self, queryset: QuerySet, name, value):
+    def filter_free_delivery(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
+        """
+        Фильтрация по бесплатной доставке
+
+        :param queryset: queryset товара
+        :type queryset: QuerySet
+        :param name: имя поля
+        :type name: str
+        :param value: значение для сортировки
+        :type value: bool
+        :return queryset: queryset товара
+        :rtype queryset: QuerySet
+        """
+
         if value:
             return queryset.filter(**{name: value})
         return queryset
 
-    def filter_available(self, queryset: QuerySet, name, value):
+    def filter_available(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
+        """
+        Фильтрация товара в наличии
+
+        :param queryset: queryset товара
+        :type queryset: QuerySet
+        :param name: имя поля
+        :type name: str
+        :param value: значение для сортировки
+        :type value: bool
+        :return queryset: queryset товара
+        :rtype queryset: QuerySet
+        """
+
         if value:
             return queryset.filter(count__gt=0)
         return queryset
 
-    def filter_category(self, queryset: QuerySet, name, value):
+    def filter_category(self, queryset: QuerySet, name: str, value: int):
+        """
+        Фильтрация товара по категории
+
+        :param queryset: queryset товара
+        :type queryset: QuerySet
+        :param name: имя поля
+        :type name: str
+        :param value: значение для сортировки
+        :type value: int
+        :return queryset: queryset товара
+        :rtype queryset: QuerySet
+        """
+
         category = ProductCategory.objects.get(id=value)
         if category.parent:
             return queryset.filter(category=category)

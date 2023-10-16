@@ -162,7 +162,7 @@ class ProductSerializer(serializers.ModelSerializer):
             return ReviewProductSerializer(product.reviews.all(), many=True).data
         return product.reviews.count()
 
-    def get_count(self, product, Product) -> int:
+    def get_count(self, product: Product) -> int:
         """
         Возвращает количество товара
 
