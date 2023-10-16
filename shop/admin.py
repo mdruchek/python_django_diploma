@@ -1,6 +1,7 @@
 from pathlib import Path, PurePath
 from io import TextIOWrapper
 from csv import DictReader
+from typing import List
 
 from django.contrib import admin
 from django.http import HttpRequest, HttpResponse
@@ -27,19 +28,34 @@ from .admin_mixins import ExportAsCSVMixin
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
+    """
+    Класс администрирования категории товара
+    """
     pass
 
 
 class ImagesProductInLine(admin.StackedInline):
+    """
+    Класс внедрения изображения товара
+    """
+
     model = ImagesProducts
 
 
 class SpecificationProductInLine(admin.StackedInline):
+    """
+    Класс внедрения спецификации товара
+    """
+
     model = SpecificationProduct
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
+    """
+    Класс администрирования товара
+    """
+
     change_list_template = "frontend/products_changelist.html"
     actions = [
         'export_csv',
@@ -51,6 +67,10 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
     ]
 
     def import_csv(self, request: HttpRequest) -> HttpResponse:
+        """
+        Метод импортирования товаров из csv файла
+        """
+
         if request.method == 'GET':
             form = CSVImportForms
             context = {
@@ -89,7 +109,11 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
         self.message_user(request, message="Данные из CSV загружены.")
         return redirect('..')
 
-    def get_urls(self):
+    def get_urls(self) -> List[path]:
+        """
+        Метод добавления URL
+        """
+
         urls = super().get_urls()
         new_urls = [
             path('import-products-csv/',
@@ -99,38 +123,45 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
         ]
         return new_urls + urls
 
-    def replacing_product_category_with_an_object(self, **row):
+    def replacing_product_category_with_an_object(self, **row) -> Product:
+        """
+        Замена категории товара на объект ProductCategory
+        """
+
         row['category'] = ProductCategory.objects.get(title=row['category'])
         return Product(**row)
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(ImageDepartments)
-class ImageDepartmentsAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(ImagesProducts)
-class ImagesProductAdmin(admin.ModelAdmin):
+    """
+    Класс администрирования тэгов товара
+    """
     pass
 
 
 @admin.register(Basket)
 class BasketAdmin(admin.ModelAdmin):
+    """
+    Класс администрирования корзины
+    """
     pass
 
 
 @admin.register(OrderStatus)
 class OrderStatusAdmin(admin.ModelAdmin):
+    """
+    Класс администрирования заказа
+    """
     pass
 
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
+    """
+    Класс администрирования скидок
+    """
+
     list_display = [
         'product',
         'product_price',
@@ -141,5 +172,9 @@ class SaleAdmin(admin.ModelAdmin):
 
     @admin.display(description='Цена без скидки')
     def product_price(self, obj):
+        """
+        Отображение стоимости товара в общей таблице
+        """
+
         return obj.product.price
 
