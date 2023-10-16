@@ -1,83 +1,77 @@
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Avg, Count
+
+import django_filters
 
 from .models import (
     Product,
-    ProductCategory
+    ProductCategory,
+    Tag,
 )
 
 
-def filtering_products_by_price(products: QuerySet, min_price: int, max_price: int) -> QuerySet:
-    """
-    Фильтрация по цене
-
-    :param products: Набор товаров
-    :type products: QuerySet
-    :param min_price: Минимальная цена
-    :type min_price: int
-    :param max_price: Максимальная цена
-    :type max_price: int
-    :return products: Отсортированные продукты
-    :rtype products: QuerySet
-    """
-
-    products = products.filter(price__gte=min_price, price__lte=max_price)
-    return products
-
-
-def filtering_products_by_name(products, name) -> QuerySet:
-    """
-    Фильтрация по цене
-
-    :param products: Набор товаров
-    :type products: QuerySet
-    :param name: Название товара
-    :type name: str
-    :return products: Отсортированные продукты
-    :rtype products: QuerySet
-    """
-
-    products = products.filter(title__contains=name)
-    return products
-
-
-def filtering_product_by_category(products: QuerySet, category: int) -> QuerySet:
-    """
-    Фильтрация по категории
-
-    :param products: Набор товаров
-    :type products: QuerySet
-    :param category: Категория товара
-    :type category: int
-    :return products: Отсортированные продукты
-    :rtype products: QuerySet
-    """
-
-    category = ProductCategory.objects.get(id=category)
-    if category.parent:
-        products = products.filter(category=category)
+def sorting_products(queryset: QuerySet, sort: str, sort_type: str) -> QuerySet:
+    if sort_type == 'inc':
+        sort_type = '-'
     else:
-        categories = ProductCategory.objects.filter(parent=category)
-        products = products.filter(category__in=(category.id for category in categories))
+        sort_type = ''
+
+    if sort == 'rating':
+
+        products = queryset \
+            .annotate(rating_avg=Avg('reviews__rate')) \
+            .order_by('{sort_type}rating_avg'.format(sort_type=sort_type))
+
+    elif sort == 'reviews':
+
+        products = queryset \
+            .annotate(reviews_count=Count('reviews')) \
+            .order_by('{sort_type}reviews_count'.format(sort_type=sort_type))
+
+    else:
+
+        products = queryset \
+            .order_by('{sort_type}{sort}'.format(sort_type=sort_type,
+                                                 sort=sort))
+
     return products
 
 
-def filtering_product_by_equality_key(products: QuerySet, **kwargs):
-    """
-    Фильтрация по флагу
+class ProductFilter(django_filters.FilterSet):
+    price = django_filters.RangeFilter()
+    title = django_filters.CharFilter(lookup_expr='contains')
+    freeDelivery = django_filters.BooleanFilter(method='filter_free_delivery')
+    count = django_filters.BooleanFilter(method='filter_available')
+    category = django_filters.NumberFilter(method='filter_category')
+    tags = django_filters.ModelMultipleChoiceFilter(queryset=Tag.objects.all())
 
-    :param products: набор товаров
-    :type products: QuerySet
-    :param category: категория товара
-    :type category: int
-    :return products: Отсортированные продукты
-    :rtype products: QuerySet
-    """
+    class Meta:
+        model = Product
+        fields = [
+            'title',
+            'price',
+            'freeDelivery',
+            'count',
+            'category',
+            'tags',
+        ]
 
-    if list(kwargs.values())[0] == 'true':
-        kwargs[list(kwargs.keys())[0]] = True
-        products = products.filter(**kwargs)
+    def filter_free_delivery(self, queryset: QuerySet, name, value):
+        if value:
+            return queryset.filter(**{name: value})
+        return queryset
 
-    return products
+    def filter_available(self, queryset: QuerySet, name, value):
+        if value:
+            return queryset.filter(count__gt=0)
+        return queryset
+
+    def filter_category(self, queryset: QuerySet, name, value):
+        category = ProductCategory.objects.get(id=value)
+        if category.parent:
+            return queryset.filter(category=category)
+        else:
+            categories = ProductCategory.objects.filter(parent=category)
+            return queryset.filter(category__in=(category.id for category in categories))
 
 
 class AddingProductInCartService:

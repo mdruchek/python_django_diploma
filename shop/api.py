@@ -37,10 +37,8 @@ from .models import (
 )
 
 from .services import (
-    filtering_products_by_price,
-    filtering_products_by_name,
-    filtering_product_by_category,
-    filtering_product_by_equality_key
+    ProductFilter,
+    sorting_products
 )
 
 
@@ -81,52 +79,27 @@ class CatalogListApiView(APIView):
     """
     ApiView для возврата каталога
     """
-    def get(self, request: Request) -> Dict:
+    def get(self, request: Request) -> Response:
         data_request: QueryDict = request.GET
-        products: QuerySet = Product.objects.prefetch_related('images').prefetch_related('reviews')
 
-        products = filtering_products_by_price(
-            products=products,
-            min_price=data_request.get('filter[minPrice]'),
-            max_price=data_request.get('filter[maxPrice]')
+        products: QuerySet = ProductFilter(
+            {
+                'price_min': request.GET.get('filter[minPrice]'),
+                'price_max': request.GET.get('filter[maxPrice]'),
+                'title': request.GET.get('filter[name]'),
+                'freeDelivery': request.GET.get('filter[freeDelivery]'),
+                'count': request.GET.get('filter[available]'),
+                'category': request.GET.get('category'),
+                'tags': request.GET.getlist('tags[]'),
+            },
+        ).qs
+
+        products = sorting_products(
+            queryset=products,
+            sort=request.GET.get('sort'),
+            sort_type=request.GET.get('sortType')
         )
 
-        products = filtering_products_by_name(products, data_request.get('filter[name]'))
-
-        category = data_request.get('category', False)
-
-        if category:
-            products = filtering_product_by_category(products, data_request['category'])
-
-        products = filtering_product_by_equality_key(products,
-                                                     freeDelivery=data_request.get('filter[freeDelivery]'))
-
-        if data_request.get('filter[available]') == 'true':
-            products = products.filter(count__gt=0)
-
-        if data_request.get('sortType') == 'inc':
-            sort_type = '-'
-        else:
-            sort_type = ''
-
-        sort = data_request.get(key='sort', default='title')
-
-        if sort == 'rating':
-            products = (products
-                        .annotate(rating_avg=Avg('reviews__rate'))
-                        .order_by('{sort_type}rating_avg'.format(sort_type=sort_type)))
-        elif sort == 'reviews':
-            products = (products
-                        .annotate(reviews_count=Count('reviews'))
-                        .order_by('{sort_type}reviews_count'.format(sort_type=sort_type)))
-        else:
-            products = (products
-                        .order_by('{sort_type}{sort}'.format(sort_type=sort_type,
-                                                             sort=sort)))
-
-        tags = data_request.getlist('tags[]')
-        if tags:
-            products = Product.objects.filter(tags__in=tags)
         if products.exists():
             paginator = Paginator(products, settings.PAGINATE_BY)
             current_page = data_request.get('currentPage')

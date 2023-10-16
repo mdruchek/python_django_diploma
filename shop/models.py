@@ -174,7 +174,7 @@ class SpecificationProduct(models.Model):
     class Meta:
         verbose_name = 'характеристика товара'
         verbose_name_plural = 'характеристики товаров'
-        db_table = 'frontend_specificationproducts'
+        db_table = 'frontend_specificationproduct'
 
 
 class Sale(models.Model):
