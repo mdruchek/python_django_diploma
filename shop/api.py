@@ -80,6 +80,7 @@ class CatalogListApiView(APIView):
     """
     ApiView для возврата каталога
     """
+
     def get(self, request: Request) -> Response:
         data_request: QueryDict = request.GET
 
@@ -137,6 +138,7 @@ class ProductLimitedListApiView(APIView):
     """
     ApiView для возврата лимитированных товаров
     """
+
     def get(self, request):
         products = Product.objects.filter(limited_edition=True, count__gt=0)[:15]
         serialized = ProductSerializer(products,
@@ -163,6 +165,7 @@ class ProductPopularListApiView(APIView):
     """
     ApiView для возврата популярных товаров
     """
+
     def get(self, request):
         products = (Product.objects.filter(reviews__isnull=False)
                     .annotate(reviews_count=Count('reviews'))
@@ -192,6 +195,7 @@ class SalesListApiView(APIView):
     """
     ApiView для возврата скидок
     """
+
     def get(self, request):
         sales = Sale.objects.filter(date_to__gte=date.today()).order_by('date_to')
 
@@ -219,6 +223,7 @@ class BannersListApiView(APIView):
     """
     ApiView для возврата баннера
     """
+
     def get(self, request):
         id_products_list = Product.objects.values_list('id', flat=True)
         banner_products = []
@@ -250,6 +255,7 @@ class BasketListApiView(APIView):
     """
     ApiView для возврата, добавления, удаления товаров из корзину
     """
+
     def get(self, request: Request):
         basket_id: Basket = request.session.get('basket', False)
 
@@ -426,6 +432,7 @@ class OrderListApiView(ListCreateAPIView):
     """
     ApiView для возврата списка заказов
     """
+
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
 
@@ -445,6 +452,7 @@ class OrderDetailApiView(RetrieveUpdateAPIView):
     """
     ApiView для возврата и редактирования заказов
     """
+
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
     lookup_field = 'id'
@@ -481,6 +489,7 @@ class PaymentApiView(APIView):
     """
     ApiView для оплаты
     """
+
     def post(self, request, id):
         order = Order.objects.get(id=id)
         order.status = OrderStatus.objects.get('Оплачен')
@@ -492,5 +501,6 @@ class TagViewSet(viewsets.ModelViewSet):
     """
     ApiView для отображения тегов
     """
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
