@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import frontend.models
+import shop.models
 
 
 class Migration(migrations.Migration):
@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='imagesproducts',
             name='src',
-            field=models.ImageField(default='img/products/default_icon_product.jpg', upload_to=frontend.models.image_product_directory_path, verbose_name='Фото товара'),
+            field=models.ImageField(default='img/products/default_icon_product.jpg', upload_to=shop.models.image_product_directory_path, verbose_name='Фото товара'),
             preserve_default=False,
         ),
         migrations.AddField(

@@ -142,3 +142,4 @@ class SaleAdmin(admin.ModelAdmin):
     @admin.display(description='Цена без скидки')
     def product_price(self, obj):
         return obj.product.price
+

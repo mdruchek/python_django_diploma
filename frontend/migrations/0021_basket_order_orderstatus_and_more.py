@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import frontend.models
+import shop.models
 
 
 class Migration(migrations.Migration):
@@ -93,7 +93,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='imagesproducts',
             name='image',
-            field=models.ImageField(blank=True, null=True, upload_to=frontend.models.image_product_directory_path, verbose_name='Фото товара'),
+            field=models.ImageField(blank=True, null=True, upload_to=shop.models.image_product_directory_path, verbose_name='Фото товара'),
         ),
         migrations.AlterField(
             model_name='productcategory',
