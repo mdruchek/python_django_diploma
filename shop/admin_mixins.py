@@ -6,6 +6,10 @@ from django.http import HttpRequest, HttpResponse
 
 
 class ExportAsCSVMixin:
+    """
+    Миксин для экспорта товара в файл csv
+    """
+
     def export_csv(self, request: HttpRequest, queryset: QuerySet):
         meta: Options = self.model._meta
         field_names = [field.name for field in meta.fields]
