@@ -1,0 +1,28 @@
+[
+{
+  "model": "users.userrole",
+  "pk": 1,
+  "fields": {
+    "title": "Покупатель"
+  }
+},
+{
+  "model": "users.useravatar",
+  "pk": 1,
+  "fields": {
+    "src": "default_icon_product_wXHBvDd.jpg",
+    "alt": "Image alt string",
+    "user": 7
+  }
+},
+{
+  "model": "users.userprofile",
+  "pk": 2,
+  "fields": {
+    "patronymic": "Незнайкович",
+    "phone": "+71234567890",
+    "user": 7,
+    "role": 1
+  }
+}
+]

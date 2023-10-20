@@ -8,7 +8,6 @@ class UserRole(models.Model):
     class Meta:
         verbose_name = 'роль пользователя'
         verbose_name_plural = 'роли пользователей'
-        db_table = 'frontend_userrole'
 
     def __str__(self):
         return self.title
@@ -26,7 +25,6 @@ class UserAvatar(models.Model):
     class Meta:
         verbose_name = 'аватарка пользователя'
         verbose_name_plural = 'аватарки пользователей'
-        db_table = 'frontend_useravatar'
 
 
 class UserProfile(models.Model):
@@ -38,7 +36,6 @@ class UserProfile(models.Model):
     class Meta:
         verbose_name = 'профиль пользователя'
         verbose_name_plural = 'профили пользователей'
-        db_table = 'frontend_userprofile'
 
     def __str__(self):
         return '{last_name} {fist_name} {patronymic}'.format(patronymic=self.patronymic,

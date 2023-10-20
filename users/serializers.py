@@ -52,7 +52,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, user: User, validated_data):
         request_data = self.context['request'].data
-        # print(f'UserSerializer: {request_data["avatar"]}')
         full_name = request_data['fullName'].split()
 
         last_name, first_name, patronymic = [full_name[index]
@@ -65,7 +64,7 @@ class UserSerializer(serializers.ModelSerializer):
         user.email = validated_data.get('email', user.email)
         user.save()
 
-        profile: UserProfile = user.userprofile
+        profile: UserProfile = UserProfile.objects.get(user=user)
         profile.phone = request_data['phone']
         profile.patronymic = patronymic
         profile.save()

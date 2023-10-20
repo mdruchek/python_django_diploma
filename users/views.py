@@ -8,7 +8,8 @@ from django.db import transaction
 
 from .models import (
     UserRole,
-    UserProfile
+    UserProfile,
+    UserAvatar
 )
 
 
@@ -57,5 +58,6 @@ def sign_up(request: HttpRequest) -> HttpResponse:
                 return HttpResponse(status=401)
             user_role = UserRole.objects.get(title='Покупатель')
             UserProfile.objects.create(user=user, role=user_role)
+            UserAvatar.objects.create(user=user)
         login(request, user)
         return HttpResponse(status=201)

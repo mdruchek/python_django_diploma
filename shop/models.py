@@ -13,7 +13,6 @@ class ImageDepartments(models.Model):
     class Meta:
         verbose_name = 'изображение категории товара'
         verbose_name_plural = 'изображения категорий товара'
-        db_table = 'frontend_imagedepartments'
 
     def __str__(self):
         return self.src
@@ -38,7 +37,6 @@ class ProductCategory(models.Model):
     class Meta:
         verbose_name = 'категория продукта'
         verbose_name_plural = 'категории товаров'
-        db_table = 'frontend_productcategory'
 
     def __str__(self):
         return self.title
@@ -54,7 +52,6 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'тэг'
         verbose_name_plural = 'тэги'
-        db_table = 'frontend_tag'
 
     def __str__(self):
         return self.name
@@ -79,7 +76,6 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'товар'
         verbose_name_plural = 'товар'
-        db_table = 'frontend_product'
 
     def __str__(self):
         return self.title
@@ -105,7 +101,6 @@ class ImagesProducts(models.Model):
     class Meta:
         verbose_name = 'изображение товара'
         verbose_name_plural = 'изображения товара'
-        db_table = 'frontend_imagesproducts'
 
     def __str__(self):
         return self.src.name
@@ -125,7 +120,6 @@ class Basket(models.Model):
     class Meta:
         verbose_name = 'корзина'
         verbose_name_plural = 'корзины'
-        db_table = 'frontend_basket'
 
 
 class ProductsInBaskets(models.Model):
@@ -136,9 +130,6 @@ class ProductsInBaskets(models.Model):
     basket = models.ForeignKey(Basket, verbose_name='корзина', on_delete=models.PROTECT)
     product = models.ForeignKey(Product, verbose_name='товар', on_delete=models.PROTECT)
     count = models.IntegerField(verbose_name='количество')
-
-    class Meta:
-        db_table = 'frontend_productsinbaskets'
 
 
 class OrderStatus(models.Model):
@@ -151,7 +142,6 @@ class OrderStatus(models.Model):
     class Meta:
         verbose_name = 'статус заказа'
         verbose_name_plural = 'статаусы заказов'
-        db_table = 'frontend_orderstatus'
 
     def __str__(self):
         return self.status
@@ -180,7 +170,6 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
-        db_table = 'frontend_order'
 
 
 class ProductsInOrders(models.Model):
@@ -191,9 +180,6 @@ class ProductsInOrders(models.Model):
     order = models.ForeignKey(Order, verbose_name='заказ', on_delete=models.PROTECT)
     product = models.ForeignKey(Product, verbose_name='товар', on_delete=models.PROTECT)
     count = models.IntegerField(verbose_name='количество')
-
-    class Meta:
-        db_table = 'frontend_productsinorders'
 
 
 class ReviewProduct(models.Model):
@@ -211,7 +197,6 @@ class ReviewProduct(models.Model):
     class Meta:
         verbose_name = 'отзыв о товаре'
         verbose_name_plural = 'отзывы о товарах'
-        db_table = 'frontend_reviewproduct'
 
 
 class SpecificationProduct(models.Model):
@@ -226,7 +211,6 @@ class SpecificationProduct(models.Model):
     class Meta:
         verbose_name = 'характеристика товара'
         verbose_name_plural = 'характеристики товаров'
-        db_table = 'frontend_specificationproduct'
 
 
 class Sale(models.Model):
@@ -242,4 +226,3 @@ class Sale(models.Model):
     class Meta:
         verbose_name = 'скидка'
         verbose_name_plural = 'скидки'
-        db_table = 'frontend_sale'
