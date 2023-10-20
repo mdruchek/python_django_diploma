@@ -35,7 +35,7 @@ def sign_out(request: HttpRequest) -> HttpResponse:
     return HttpResponse(status=200)
 
 
-def sign_up(request: HttpResponse):
+def sign_up(request: HttpRequest) -> HttpResponse:
     """
     Функция регистрации
     """

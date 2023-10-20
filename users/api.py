@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 
@@ -17,7 +17,8 @@ from .models import (
 
 
 from .serializers import (
-    UserSerializer
+    UserSerializer,
+    UserAvatarSerializer
 )
 
 
@@ -54,18 +55,26 @@ class ProfilePasswordApiView(APIView):
         return Response(status=401)
 
 
-class ProfileAvatarApiView(APIView):
+class ProfileAvatarApiView(RetrieveUpdateAPIView):
     """
     ApiView для изменения аватарки
     """
-    def post(self, request: Request) -> Response:
-        avatar = request.data['avatar']
-        user_avatar, created = UserAvatar.objects.update_or_create(
-            user=request.user,
-            defaults={'src': avatar, 'alt': "Image alt string"}
+
+    serializer_class = UserAvatarSerializer
+    queryset = UserAvatar.objects.all()
+
+    def post(self, request):
+        avatar = self.get_queryset().get(user=request.user)
+
+        serializer = UserAvatarSerializer(
+            avatar,
+            data={
+                'src': request.data['avatar'],
+                'alt': 'Image alt string'
+            }
         )
-        data = {
-          "src": user_avatar.src.url,
-          "alt": "Image alt string"
-        }
-        return Response(data)
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+
+        return Response(serializer.data)

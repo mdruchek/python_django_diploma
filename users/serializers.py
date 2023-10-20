@@ -14,6 +14,7 @@ class UserAvatarSerializer(serializers.ModelSerializer):
     """
     Сериализатор модели UserAvatar
     """
+
     class Meta:
         model = UserAvatar
         fields = [
@@ -26,6 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Сериалайзер для модели UserProfile
     """
+
     fullName = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField(validators=[])
     avatar = serializers.SerializerMethodField()
@@ -50,6 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, user: User, validated_data):
         request_data = self.context['request'].data
+        # print(f'UserSerializer: {request_data["avatar"]}')
         full_name = request_data['fullName'].split()
 
         last_name, first_name, patronymic = [full_name[index]
