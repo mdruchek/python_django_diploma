@@ -4,6 +4,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.db import transaction
+
 from .models import (
     UserRole,
     UserProfile
@@ -38,21 +40,22 @@ def sign_up(request: HttpResponse):
     Функция регистрации
     """
     if request.method == 'POST':
-        data = json.loads(request.body)
-        name = data['username']
-        username = data['username']
-        password = data['password']
-        user = User(first_name=name, username=username)
-        user.set_password(password)
-        try:
-            user.full_clean()
-        except ValidationError:
-            return HttpResponse(status=401)
-        try:
-            user.save()
-        except IntegrityError:
-            return HttpResponse(status=401)
-        user_role = UserRole.objects.get(title='Покупатель')
-        UserProfile.objects.create(user=user, role=user_role)
+        with transaction.atomic():
+            data = json.loads(request.body)
+            name = data['username']
+            username = data['username']
+            password = data['password']
+            user = User(first_name=name, username=username)
+            user.set_password(password)
+            try:
+                user.full_clean()
+            except ValidationError:
+                return HttpResponse(status=401)
+            try:
+                user.save()
+            except IntegrityError:
+                return HttpResponse(status=401)
+            user_role = UserRole.objects.get(title='Покупатель')
+            UserProfile.objects.create(user=user, role=user_role)
         login(request, user)
         return HttpResponse(status=201)
