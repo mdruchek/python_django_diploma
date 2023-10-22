@@ -1,11 +1,17 @@
+from typing import Tuple, Dict
+
 from django.db.models import QuerySet, Avg, Count
 
 import django_filters
+
+from rest_framework.request import Request
 
 from .models import (
     Product,
     ProductCategory,
     Tag,
+    Basket,
+    ProductsInBaskets
 )
 
 
@@ -130,7 +136,74 @@ class ProductFilter(django_filters.FilterSet):
             return queryset.filter(category__in=(category.id for category in categories))
 
 
-class AddingProductInCartService:
+def get_list_products_in_basket(request: Request) -> Tuple[Basket, QuerySet]:
+    """
+    Возвращает список товаров в корзине
+    :param request: запрос
+    :type request: Request
+    :return basket: корзина
+    :rtype basket: Basket
+    :return products_in_basket:
+    :rtype products_in_basket: QuerySet
+    """
+
+    basket_id: Basket = request.session.get('basket', False)
+
+    if basket_id and request.user.is_authenticated:
+        basket_user, basket_created = Basket.objects.get_or_create(user=request.user)
+        basket_session = Basket.objects.get(id=basket_id)
+
+        if not basket_created:
+            products_in_basket_session = basket_session.products.all()
+            products_in_basket_user = basket_user.products.all()
+
+            for product in products_in_basket_session:
+
+                if product not in products_in_basket_user:
+                    basket_user.products.add(product,
+                                             through_defaults={
+                                                 'count': product.productsinbaskets_set.get(basket=basket_session,
+                                                                                            product=product).count
+                                             }
+                                             )
+            basket = basket_user
+
+        else:
+            basket_session.user = request.user
+            basket_session.save()
+            basket = basket_session
+
+    elif basket_id and not request.user.is_authenticated:
+        basket = Basket.objects.get(id=basket_id)
+
+    elif not basket_id and request.user.is_authenticated:
+        basket, basket_created = Basket.objects.get_or_create(user=request.user)
+
+    elif not basket_id and not request.user.is_authenticated:
+        return Product.objects.none()
+
+    products_in_basket = basket.products.all()
+
+    return basket, products_in_basket
+
+
+def get_number_products_in_basket(basket: Basket) -> Dict[int, int]:
+    """
+    Возвращает количество товара в корзине
+    :param basket: корзина
+    :type basket: Basket
+    :return count_products: словарь id товара и количества
+    :rtype count_products: Dict
+    """
+
+    count_products = dict()
+    for product_in_basket in (ProductsInBaskets.objects.filter(basket=basket).values()):
+        count_products[product_in_basket['product_id']] = product_in_basket['count']
+    return count_products
+
+
+class BasketService:
+
     def adding_product(self):
         pass
 
@@ -138,9 +211,6 @@ class AddingProductInCartService:
         pass
 
     def change_number_products(self):
-        pass
-
-    def get_list_products(self):
         pass
 
     def get_number_products(self):

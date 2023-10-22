@@ -22,7 +22,7 @@ from .serializers import (
     ProductSerializer,
     ReviewProductSerializer,
     OrderSerializer,
-    SaleSerializer
+    SaleSerializer,
 )
 
 from .models import (
@@ -34,12 +34,14 @@ from .models import (
     ProductsInBaskets,
     Order,
     OrderStatus,
-    Sale
+    Sale,
 )
 
 from .services import (
     ProductFilter,
-    sorting_products
+    sorting_products,
+    get_list_products_in_basket,
+    get_number_products_in_basket,
 )
 
 
@@ -256,49 +258,9 @@ class BasketListApiView(APIView):
     ApiView для возврата, добавления, удаления товаров из корзину
     """
 
-    def get(self, request: Request):
-        basket_id: Basket = request.session.get('basket', False)
-
-        if basket_id and request.user.is_authenticated:
-            basket_user, basket_created = Basket.objects.get_or_create(user=request.user)
-            basket_session = Basket.objects.get(id=basket_id)
-
-            if not basket_created:
-                basket_session = Basket.objects.get(id=basket_id)
-                products_in_basket_session = basket_session.products.all()
-                products_in_basket_user = basket_user.products.all()
-
-                for product in products_in_basket_session:
-
-                    if product not in products_in_basket_user:
-                        basket_user.products.add(product,
-                                                 through_defaults={
-                                                     'count': product.productsinbaskets_set.get(basket=basket_session,
-                                                                                                product=product).count
-                                                 }
-                                                 )
-                basket = basket_user
-
-            else:
-                basket_session.user = request.user
-                basket_session.save()
-                basket = basket_session
-
-        elif basket_id and not request.user.is_authenticated:
-            basket = Basket.objects.get(id=basket_id)
-
-        elif not basket_id and request.user.is_authenticated:
-            basket, basket_created = Basket.objects.get_or_create(user=request.user)
-
-        elif not basket_id and not request.user.is_authenticated:
-            return Response({})
-
-        products_in_basket = basket.products.all()
-        count_products = dict()
-
-        for product_in_basket in (ProductsInBaskets.objects.filter(basket=basket).values()):
-            count_products[product_in_basket['product_id']] = product_in_basket['count']
-
+    def get(self, request: Request) -> Response:
+        basket, products_in_basket = get_list_products_in_basket(request)
+        count_products: Dict = get_number_products_in_basket(basket)
         serialized = ProductSerializer(products_in_basket,
                                        many=True,
                                        fields=['id',
@@ -319,7 +281,7 @@ class BasketListApiView(APIView):
 
         return Response(serialized.data)
 
-    def post(self, request: Request):
+    def post(self, request: Request) -> Response:
         request_data = request.data
         basket_id: int = request.session.get('basket')
 
