@@ -202,6 +202,37 @@ def get_number_products_in_basket(basket: Basket) -> Dict[int, int]:
     return count_products
 
 
+def combine_two_buckets(basket_user: Basket, basket_session: Basket) -> Basket:
+    """
+    Объединяет карзину неавторизованного пользователя с карзиной пользователя после авторизации
+
+    :param basket_user: корзина авторизованного пользователя
+    :type basket_user: Basket
+    :param basket_session: корзина неавторизованного пользователя
+    :type basket_session: Basket
+    :return basket_user: объединённая карзина авторизованного пользователя
+    :rtype basket_user: Basket
+    """
+
+    products_in_basket_session = basket_session.products.all()
+    products_in_basket_user = basket_user.products.all()
+
+    for product in products_in_basket_session:
+
+        if product not in products_in_basket_user:
+            basket_user.products.add(
+                product,
+                through_defaults={
+                    'count': product.productsinbaskets_set.get(
+                                basket=basket_session,
+                                product=product
+                            ).count
+                }
+            )
+
+    return basket_user
+
+
 class BasketService:
 
     def adding_product(self):
@@ -211,9 +242,6 @@ class BasketService:
         pass
 
     def change_number_products(self):
-        pass
-
-    def get_number_products(self):
         pass
 
 
