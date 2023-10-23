@@ -42,17 +42,26 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
     def get_fullName(self, user: User):
+        """
+        Возвращает полное имя пользователя
+        """
         return '%s %s %s' % (user.last_name, user.first_name, user.userprofile.patronymic)
 
     def get_phone(self, user: User) -> str:
+        """
+        Возвращает телефон пользователя
+        """
         return user.userprofile.phone
 
     def get_avatar(self, user: User) -> Dict:
+        """
+        Возвращает данные аватара пользователя
+        """
         return UserAvatarSerializer(user.useravatar).data
 
     def update(self, user: User, validated_data):
         request_data = self.context['request'].data
-        full_name = request_data['fullName'].split()
+        full_name: str = request_data['fullName'].split()
 
         last_name, first_name, patronymic = [full_name[index]
                                              if index < len(full_name)

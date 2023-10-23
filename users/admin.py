@@ -9,6 +9,10 @@ from .models import (
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
+    """
+    Класс администрирования профиля пользователя
+    """
+
     list_display = ['user', 'user_full_name']
 
     @admin.display(ordering='user__username', description='ФИО')
@@ -18,9 +22,17 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(UserRole)
 class UserRoleAdmin(admin.ModelAdmin):
+    """
+    Класс администрирования роли пользователя
+    """
+
     pass
 
 
 @admin.register(UserAvatar)
 class UserAvatarAdmin(admin.ModelAdmin):
+    """
+    Класс администрирования аватарки пользователя
+    """
+
     pass

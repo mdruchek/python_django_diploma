@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 
 
 class UserRole(models.Model):
+    """
+    Модель ролей пользователя
+    """
+
     title = models.CharField(verbose_name='роль пользователя', max_length=100)
 
     class Meta:
@@ -14,10 +18,18 @@ class UserRole(models.Model):
 
 
 def image_product_directory_path(instance: 'UserAvatar', filename: str) -> str:
+    """
+    Возвращает путь для сохранения аватарки пользователя
+    """
+
     return 'img/users_avatars/user_{pk}/{filename}'.format(pk=instance.user.pk, filename=filename)
 
 
 class UserAvatar(models.Model):
+    """
+    Модель аватарки пользователя
+    """
+
     src = models.ImageField(verbose_name='аватар', upload_to=image_product_directory_path, blank=True, null=True)
     alt = models.CharField(verbose_name='описание', max_length=50, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING)
@@ -28,6 +40,10 @@ class UserAvatar(models.Model):
 
 
 class UserProfile(models.Model):
+    """
+    Модель профиля пользователя
+    """
+
     patronymic = models.CharField(verbose_name='отчество', max_length=50, blank=True, null=True)
     phone = models.CharField(verbose_name='номер телефона', max_length=12, blank=True, null=True)
     user = models.OneToOneField(User, verbose_name='пользователь', on_delete=models.CASCADE)

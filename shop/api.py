@@ -28,10 +28,8 @@ from .serializers import (
 from .models import (
     ProductCategory,
     Product,
-    ReviewProduct,
     Tag,
     Basket,
-    ProductsInBaskets,
     Order,
     OrderStatus,
     Sale,
@@ -108,8 +106,8 @@ class CatalogListApiView(APIView):
 
         if products.exists():
             paginator = Paginator(products, settings.PAGINATE_BY)
-            current_page = data_request.get('currentPage')
-            last_page = paginator.num_pages
+            current_page: int = data_request.get('currentPage')
+            last_page: int = paginator.num_pages
 
             serialized = ProductSerializer(
                 paginator.get_page(current_page),
@@ -144,7 +142,7 @@ class ProductLimitedListApiView(APIView):
     """
 
     def get(self, request):
-        products = Product.objects.filter(limited_edition=True, count__gt=0)[:15]
+        products: QuerySet = Product.objects.filter(limited_edition=True, count__gt=0)[:15]
         serialized = ProductSerializer(products,
                                        many=True,
                                        fields=[
@@ -171,9 +169,11 @@ class ProductPopularListApiView(APIView):
     """
 
     def get(self, request):
-        products = (Product.objects.filter(reviews__isnull=False)
-                    .annotate(reviews_count=Count('reviews'))
-                    .order_by('-reviews_count'))
+        products: QuerySet = (
+            Product.objects.filter(reviews__isnull=False)
+            .annotate(reviews_count=Count('reviews'))
+            .order_by('-reviews_count'))
+
         product_data = ProductSerializer(
             products,
             many=True,
@@ -192,6 +192,7 @@ class ProductPopularListApiView(APIView):
 
             ]
         ).data
+
         return Response(product_data)
 
 
@@ -201,12 +202,12 @@ class SalesListApiView(APIView):
     """
 
     def get(self, request):
-        sales = Sale.objects.filter(date_to__gte=date.today()).order_by('date_to')
+        sales: QuerySet = Sale.objects.filter(date_to__gte=date.today()).order_by('date_to')
 
         if sales.exists():
             paginator = Paginator(sales, settings.PAGINATE_BY)
-            current_page = request.GET.get('currentPage')
-            last_page = paginator.num_pages
+            current_page: int = request.GET.get('currentPage')
+            last_page: int = paginator.num_pages
 
             items = SaleSerializer(
                 paginator.get_page(current_page),
@@ -229,12 +230,13 @@ class BannersListApiView(APIView):
     """
 
     def get(self, request):
-        id_products_list = Product.objects.values_list('id', flat=True)
-        banner_products = []
+        id_products_list: list = Product.objects.values_list('id', flat=True)
+        banner_products: list = []
 
         for _ in range(3):
-            id_product = id_products_list[randint(0, len(id_products_list) - 1)]
+            id_product: list = id_products_list[randint(0, len(id_products_list) - 1)]
             product = Product.objects.get(id=id_product)
+
             product_data = ProductSerializer(
                 product,
                 fields=[
@@ -252,6 +254,7 @@ class BannersListApiView(APIView):
 
                 ]
             ).data
+
             banner_products.append(product_data)
         return Response(banner_products)
 

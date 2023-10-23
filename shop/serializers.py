@@ -2,8 +2,6 @@ from statistics import mean
 from typing import Dict, Union
 
 from rest_framework import serializers
-from rest_framework.request import Request
-from django.db import transaction
 from django.db.models import QuerySet
 from .models import (
     ProductCategory,
@@ -13,8 +11,6 @@ from .models import (
     ReviewProduct,
     SpecificationProduct,
     Tag,
-    Basket,
-    ProductsInBaskets,
     Order,
     ProductsInOrders,
     OrderStatus,
@@ -225,6 +221,7 @@ class OrderSerializer(serializers.ModelSerializer):
         """
 
         products: QuerySet = order.products.all()
+
         serialised_products = ProductSerializer(
             products,
             many=True,
@@ -242,19 +239,24 @@ class OrderSerializer(serializers.ModelSerializer):
               'reviews'
             ]
         )
+
         products_in_orders = ProductsInOrders.objects.filter(order_id=order.pk)
+
         for product in serialised_products.data:
             product['count'] = products_in_orders.get(product_id=product['id']).count
+
         return serialised_products.data
 
     def create(self, validated_data):
         order = Order.objects.create(**validated_data)
+
         for product in self.context['request'].data:
             ProductsInOrders.objects.create(
                 order_id=order.pk,
                 product_id=product['id'],
                 count=product['count']
             )
+
         return order
 
     def update(self, order, validated_data):

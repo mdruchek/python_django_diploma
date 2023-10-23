@@ -26,6 +26,7 @@ class ProfileApiView(RetrieveAPIView, UpdateModelMixin):
     """
     ApiView для отображения и изменения профиля
     """
+
     serializer_class = UserSerializer
     queryset = User.objects.all()
     permission_classes = [
@@ -43,6 +44,7 @@ class ProfilePasswordApiView(APIView):
     """
     ApiView для изменения пароля
     """
+
     def post(self, request: Request) -> Response:
         user: User = request.user
         current_password = request.data['passwordCurrent']

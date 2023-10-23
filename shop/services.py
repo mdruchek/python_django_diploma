@@ -327,25 +327,3 @@ def get_basket(request: Request) -> Basket:
             basket = Basket.objects.create()
 
     return basket
-
-
-class AddingReviewProductService:
-    def adding_review(self):
-        pass
-
-    def get_list_reviews(self):
-        pass
-
-    def get_discount_on_cart(self):
-        pass
-
-    def get_number_reviews(self):
-        pass
-
-
-class IntegrationWithPaymentService:
-    def pay_order(self):
-        pass
-
-    def get_payment_status(self):
-        pass
