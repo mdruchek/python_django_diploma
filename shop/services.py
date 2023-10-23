@@ -1,3 +1,4 @@
+import json
 from typing import Tuple, Dict
 
 from django.db.models import QuerySet, Avg, Count
@@ -273,6 +274,36 @@ def adding_product_in_basket(request: Request) -> Tuple[Basket, QuerySet]:
     return basket, products_in_basket
 
 
+def delete_product_in_basket(request: Request) -> Tuple[Basket, QuerySet]:
+    """
+    Удаляет товар из корзину
+
+    :param request: запрос
+    :type request: Request
+    :return basket: корзина
+    :rtype basket: Basket
+    :return products_in_basket:
+    :rtype products_in_basket: QuerySet
+    """
+
+    request_data = json.loads(request.body)
+    id_product: int = request_data['id']
+    count_product: int = request_data['count']
+
+    basket: Basket = get_basket(request)
+
+    product: Product = Product.objects.get(id=id_product)
+    product_for_delete: Product = product.productsinbaskets_set.get(basket=basket, product=product)
+    product_for_delete.count -= count_product
+    product_for_delete.save()
+
+    if product_for_delete.count == 0:
+        product_for_delete.delete()
+
+    products_in_basket: QuerySet = basket.products.all()
+    return basket, products_in_basket
+
+
 def get_basket(request: Request) -> Basket:
     """
     Возвращает корзину товара
@@ -296,18 +327,6 @@ def get_basket(request: Request) -> Basket:
             basket = Basket.objects.create()
 
     return basket
-
-
-class BasketService:
-
-    def adding_product(self):
-        pass
-
-    def delete_product(self):
-        pass
-
-    def change_number_products(self):
-        pass
 
 
 class AddingReviewProductService:

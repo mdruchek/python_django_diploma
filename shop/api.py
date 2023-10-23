@@ -43,6 +43,7 @@ from .services import (
     get_list_products_in_basket,
     get_number_products_in_basket,
     adding_product_in_basket,
+    delete_product_in_basket,
 )
 
 
@@ -230,6 +231,7 @@ class BannersListApiView(APIView):
     def get(self, request):
         id_products_list = Product.objects.values_list('id', flat=True)
         banner_products = []
+
         for _ in range(3):
             id_product = id_products_list[randint(0, len(id_products_list) - 1)]
             product = Product.objects.get(id=id_product)
@@ -262,6 +264,7 @@ class BasketListApiView(APIView):
     def get(self, request: Request) -> Response:
         basket, products_in_basket = get_list_products_in_basket(request)
         count_products: Dict = get_number_products_in_basket(basket)
+
         serialized = ProductSerializer(products_in_basket,
                                        many=True,
                                        fields=['id',
@@ -283,9 +286,7 @@ class BasketListApiView(APIView):
         return Response(serialized.data)
 
     def post(self, request: Request) -> Response:
-
         basket, products_in_basket = adding_product_in_basket(request)
-
         count_products: Dict = get_number_products_in_basket(basket)
 
         serialized = ProductSerializer(products_in_basket,
@@ -311,27 +312,7 @@ class BasketListApiView(APIView):
         return Response(serialized.data)
 
     def delete(self, request):
-        request_data = json.loads(request.body)
-        id_product = request_data['id']
-        count_product = request_data['count']
-        basket_id = request.session.get('basket')
-
-        if request.user.is_authenticated:
-            basket: Basket = Basket.objects.get(user=request.user)
-        else:
-            if basket_id:
-                basket: Basket = Basket.objects.get(id=basket_id)
-
-        product = Product.objects.get(id=id_product)
-        product_for_delete = product.productsinbaskets_set.get(basket=basket, product=product)
-        product_for_delete.count -= count_product
-        product_for_delete.save()
-
-        if product_for_delete.count == 0:
-            product_for_delete.delete()
-
-        products_in_basket = basket.products.all()
-
+        basket, products_in_basket = delete_product_in_basket(request)
         count_products: Dict = get_number_products_in_basket(basket)
 
         serialized = ProductSerializer(products_in_basket,
@@ -405,8 +386,10 @@ class OrderDetailApiView(RetrieveUpdateAPIView):
         serialised_order.save()
         basket_in_request: dict = request.data.get('basket')
         products = Product.objects.in_bulk(map(int, basket_in_request)).values()
+
         for product in products:
             product.count -= basket_in_request.get(str(product.id)).get('count')
+
         Product.objects.bulk_update(products, ['count'])
         basket_obj = Basket.objects.get(user=request.user)
         basket_obj.productsinbaskets_set.all().delete()
