@@ -42,6 +42,7 @@ from .services import (
     sorting_products,
     get_list_products_in_basket,
     get_number_products_in_basket,
+    adding_product_in_basket,
 )
 
 
@@ -282,41 +283,10 @@ class BasketListApiView(APIView):
         return Response(serialized.data)
 
     def post(self, request: Request) -> Response:
-        request_data = request.data
-        basket_id: int = request.session.get('basket')
 
-        if request.user.is_authenticated:
-            basket, created = Basket.objects.get_or_create(user=request.user)
-        else:
-            if basket_id:
-                basket: Basket = Basket.objects.get(id=basket_id)
-            else:
-                basket = Basket.objects.create()
+        basket, products_in_basket = adding_product_in_basket(request)
 
-        id_product = request_data['id']
-        count_product = request_data['count']
-        product = Product.objects.get(id=id_product)
-
-        if product.count < request_data['count']:
-            count_product = product.count
-
-        products_in_basket = basket.products.all()
-
-        if product not in products_in_basket:
-            if product.count > 0:
-                basket.products.add(product, through_defaults={'count': count_product})
-        else:
-            update_product = product.productsinbaskets_set.get(basket=basket, product=product)
-            if update_product.count < product.count:
-                update_product.count += count_product
-            update_product.save()
-
-        products_in_basket = basket.products.all()
-
-        count_products = dict()
-
-        for product_in_basket in (ProductsInBaskets.objects.filter(basket=basket).values()):
-            count_products[product_in_basket['product_id']] = product_in_basket['count']
+        count_products: Dict = get_number_products_in_basket(basket)
 
         serialized = ProductSerializer(products_in_basket,
                                        many=True,
@@ -362,10 +332,7 @@ class BasketListApiView(APIView):
 
         products_in_basket = basket.products.all()
 
-        count_products = dict()
-
-        for product_in_basket in (ProductsInBaskets.objects.filter(basket=basket).values()):
-            count_products[product_in_basket['product_id']] = product_in_basket['count']
+        count_products: Dict = get_number_products_in_basket(basket)
 
         serialized = ProductSerializer(products_in_basket,
                                        many=True,

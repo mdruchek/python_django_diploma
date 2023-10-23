@@ -11,7 +11,7 @@ from .models import (
     ProductCategory,
     Tag,
     Basket,
-    ProductsInBaskets
+    ProductsInBaskets,
 )
 
 
@@ -139,6 +139,7 @@ class ProductFilter(django_filters.FilterSet):
 def get_list_products_in_basket(request: Request) -> Tuple[Basket, QuerySet]:
     """
     Возвращает список товаров в корзине
+
     :param request: запрос
     :type request: Request
     :return basket: корзина
@@ -202,7 +203,7 @@ def get_number_products_in_basket(basket: Basket) -> Dict[int, int]:
     return count_products
 
 
-def combine_two_buckets(basket_user: Basket, basket_session: Basket) -> Basket:
+def combine_two_buckets(basket_user: Basket, basket_session: Basket) -> Tuple[Basket, QuerySet]:
     """
     Объединяет карзину неавторизованного пользователя с карзиной пользователя после авторизации
 
@@ -231,6 +232,70 @@ def combine_two_buckets(basket_user: Basket, basket_session: Basket) -> Basket:
             )
 
     return basket_user
+
+
+def adding_product_in_basket(request: Request) -> Tuple[Basket, QuerySet]:
+    """
+    Добавляет товар в корзину
+
+    :param request: запрос
+    :type request: Request
+    :return basket: корзина
+    :rtype basket: Basket
+    :return products_in_basket:
+    :rtype products_in_basket: QuerySet
+    """
+
+    request_data = request.data
+
+    basket = get_basket(request)
+
+    id_product = request_data['id']
+    count_product = request_data['count']
+    product = Product.objects.get(id=id_product)
+
+    if product.count < request_data['count']:
+        count_product = product.count
+
+    products_in_basket = basket.products.all()
+
+    if product not in products_in_basket:
+        if product.count > 0:
+            basket.products.add(product, through_defaults={'count': count_product})
+    else:
+        update_product = product.productsinbaskets_set.get(basket=basket, product=product)
+        if update_product.count < product.count:
+            update_product.count += count_product
+        update_product.save()
+
+    products_in_basket = basket.products.all()
+
+    return basket, products_in_basket
+
+
+def get_basket(request: Request) -> Basket:
+    """
+    Возвращает корзину товара
+
+    :param request: запрос
+    :type request: Request
+    :return basket: корзина
+    :rtype basket: Basket
+    """
+
+    basket_id: int = request.session.get('basket')
+
+    if request.user.is_authenticated:
+        basket, created = Basket.objects.get_or_create(user=request.user)
+
+    else:
+
+        if basket_id:
+            basket: Basket = Basket.objects.get(id=basket_id)
+        else:
+            basket = Basket.objects.create()
+
+    return basket
 
 
 class BasketService:
