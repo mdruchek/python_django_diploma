@@ -31,7 +31,10 @@ class ProductCategoryAdmin(admin.ModelAdmin):
     """
     Класс администрирования категории товара
     """
-    pass
+
+    list_display = [
+        'title', 'is_active'
+    ]
 
 
 class ImagesProductInLine(admin.StackedInline):
@@ -156,7 +159,17 @@ class BasketAdmin(admin.ModelAdmin):
     """
     Класс администрирования корзины
     """
-    pass
+
+    list_display = [
+        "username"
+    ]
+
+    @admin.display(empty_value="Аноним")
+    def username(self, obj: Basket) -> str:
+        if obj.user:
+            username = obj.user.username
+            return f" Корзина {username}"
+        return "Корзина анонима"
 
 
 @admin.register(OrderStatus)

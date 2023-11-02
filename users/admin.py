@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
 
 from .models import (
     UserProfile,
@@ -13,7 +14,14 @@ class UserProfileAdmin(admin.ModelAdmin):
     Класс администрирования профиля пользователя
     """
 
-    list_display = ['user', 'user_full_name']
+    list_display = [
+        'user',
+        'user_full_name'
+    ]
+
+    exclude = [
+        'user'
+    ]
 
     @admin.display(ordering='user__username', description='ФИО')
     def user_full_name(self, obj):
@@ -25,7 +33,6 @@ class UserRoleAdmin(admin.ModelAdmin):
     """
     Класс администрирования роли пользователя
     """
-
     pass
 
 
@@ -34,5 +41,4 @@ class UserAvatarAdmin(admin.ModelAdmin):
     """
     Класс администрирования аватарки пользователя
     """
-
     pass

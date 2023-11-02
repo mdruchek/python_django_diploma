@@ -38,6 +38,9 @@ class UserAvatar(models.Model):
         verbose_name = 'аватарка пользователя'
         verbose_name_plural = 'аватарки пользователей'
 
+    def __str__(self):
+        return 'Аватарка пользователя ' + self.user.username
+
 
 class UserProfile(models.Model):
     """
