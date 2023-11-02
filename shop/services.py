@@ -137,7 +137,7 @@ class ProductFilter(django_filters.FilterSet):
             return queryset.filter(category__in=(category.id for category in categories))
 
 
-def get_list_products_in_basket(request: Request) -> Tuple[Basket, QuerySet]:
+def get_list_products_in_basket(request: Request) -> Tuple[Basket | None, QuerySet]:
     """
     Возвращает список товаров в корзине
 
@@ -162,12 +162,15 @@ def get_list_products_in_basket(request: Request) -> Tuple[Basket, QuerySet]:
             for product in products_in_basket_session:
 
                 if product not in products_in_basket_user:
-                    basket_user.products.add(product,
-                                             through_defaults={
-                                                 'count': product.productsinbaskets_set.get(basket=basket_session,
-                                                                                            product=product).count
-                                             }
-                                             )
+
+                    basket_user.products.add(
+                        product,
+                        through_defaults={
+                                    'count': product.productsinbaskets_set.get(basket=basket_session,
+                                                                               product=product).count
+                        }
+                    )
+
             basket = basket_user
 
         else:
@@ -182,7 +185,7 @@ def get_list_products_in_basket(request: Request) -> Tuple[Basket, QuerySet]:
         basket, basket_created = Basket.objects.get_or_create(user=request.user)
 
     elif not basket_id and not request.user.is_authenticated:
-        return Product.objects.none()
+        return None, Product.objects.none()
 
     products_in_basket = basket.products.all()
 
