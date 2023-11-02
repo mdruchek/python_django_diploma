@@ -71,7 +71,7 @@ class ProductReviewApiView(ListCreateAPIView):
 
     serializer_class = ReviewProductSerializer
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(product=Product.objects.get(id=kwargs['id']))
@@ -141,7 +141,7 @@ class ProductLimitedListApiView(APIView):
     ApiView для возврата лимитированных товаров
     """
 
-    def get(self, request):
+    def get(self, request: Request) -> Response:
         products: QuerySet = Product.objects.filter(limited_edition=True, count__gt=0)[:15]
         serialized = ProductSerializer(products,
                                        many=True,
@@ -168,7 +168,7 @@ class ProductPopularListApiView(APIView):
     ApiView для возврата популярных товаров
     """
 
-    def get(self, request):
+    def get(self, request: Request) -> Response:
         products: QuerySet = (
             Product.objects.filter(reviews__isnull=False)
             .annotate(reviews_count=Count('reviews'))
@@ -201,7 +201,7 @@ class SalesListApiView(APIView):
     ApiView для возврата скидок
     """
 
-    def get(self, request):
+    def get(self, request: Request) -> Response:
         sales: QuerySet = Sale.objects.filter(date_to__gte=date.today()).order_by('date_to')
 
         if sales.exists():
@@ -229,7 +229,7 @@ class BannersListApiView(APIView):
     ApiView для возврата баннера
     """
 
-    def get(self, request):
+    def get(self, request: Request) -> Response:
         id_products_list: list = Product.objects.values_list('id', flat=True)
         banner_products: list = []
 
@@ -314,7 +314,7 @@ class BasketListApiView(APIView):
 
         return Response(serialized.data)
 
-    def delete(self, request):
+    def delete(self, request: Request) -> Response:
         basket, products_in_basket = delete_product_in_basket(request)
         count_products: Dict = get_number_products_in_basket(basket)
 
@@ -349,7 +349,7 @@ class OrderListApiView(ListCreateAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs) -> Response:
         serialized = self.get_serializer(
             data={
                 'totalCost': sum([product['price'] * product['count'] for product in request.data]),
@@ -373,7 +373,7 @@ class OrderDetailApiView(RetrieveUpdateAPIView):
         IsAuthenticated
     ]
 
-    def get(self, request, id):
+    def get(self, request: Request, id: int) -> Response:
         serialized_order = self.get_serializer(Order.objects.get(id=id))
         response_data = dict()
         response_data.update(serialized_order.data)
@@ -382,7 +382,7 @@ class OrderDetailApiView(RetrieveUpdateAPIView):
         response_data['email'] = request.user.email
         return Response(response_data)
 
-    def post(self, request: Request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs) -> Response:
         serialised_order = self.get_serializer(self.get_object(),
                                                data=request.data)
         serialised_order.is_valid(raise_exception=True)
@@ -405,7 +405,7 @@ class PaymentApiView(APIView):
     ApiView для оплаты
     """
 
-    def post(self, request, id):
+    def post(self, request: Request, id: int) -> Response:
         order = Order.objects.get(id=id)
         order.status = OrderStatus.objects.get('Оплачен')
         order.save()
