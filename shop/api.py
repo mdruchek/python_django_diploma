@@ -405,9 +405,9 @@ class PaymentApiView(APIView):
     ApiView для оплаты
     """
 
-    def post(self, request: Request, id: int) -> Response:
-        order = Order.objects.get(id=id)
-        order.status = OrderStatus.objects.get('Оплачен')
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        order = Order.objects.get(id=kwargs['id'])
+        order.status = OrderStatus.objects.get(status='Оплачен')
         order.save()
         return Response(status=200)
 
