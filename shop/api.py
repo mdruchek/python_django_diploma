@@ -9,12 +9,15 @@ from django.core.paginator import Paginator
 from django.conf import settings
 
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.serializers import ModelSerializer
+
+from drf_spectacular.utils import extend_schema
 
 from .serializers import (
     TagSerializer,
@@ -229,6 +232,9 @@ class BannersListApiView(APIView):
     ApiView для возврата баннера
     """
 
+    @extend_schema(
+        responses=ProductSerializer(),
+    )
     def get(self, request: Request) -> Response:
         id_products_list: list = Product.objects.values_list('id', flat=True)
         banner_products: list = []

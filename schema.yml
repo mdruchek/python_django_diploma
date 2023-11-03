@@ -1,0 +1,1125 @@
+openapi: 3.0.3
+info:
+  title: Python django diploma
+  version: 1.0.0
+  description: Shop Megano
+paths:
+  /api/banners/:
+    get:
+      operationId: api_banners_retrieve
+      description: ApiView для возврата баннера
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/basket/:
+    get:
+      operationId: api_basket_retrieve
+      description: ApiView для возврата, добавления, удаления товаров из корзину
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: api_basket_create
+      description: ApiView для возврата, добавления, удаления товаров из корзину
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: api_basket_destroy
+      description: ApiView для возврата, добавления, удаления товаров из корзину
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/catalog/:
+    get:
+      operationId: api_catalog_retrieve
+      description: ApiView для возврата каталога
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/categories/:
+    get:
+      operationId: api_categories_list
+      description: ApiView для возврата категорий товаров
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductCategory'
+          description: ''
+  /api/order/{id}/:
+    get:
+      operationId: api_order_retrieve
+      description: ApiView для возврата и редактирования заказов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+    post:
+      operationId: api_order_create
+      description: ApiView для возврата и редактирования заказов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+    put:
+      operationId: api_order_update
+      description: ApiView для возврата и редактирования заказов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+    patch:
+      operationId: api_order_partial_update
+      description: ApiView для возврата и редактирования заказов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/orders/:
+    get:
+      operationId: api_orders_list
+      description: ApiView для возврата списка заказов
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+          description: ''
+    post:
+      operationId: api_orders_create
+      description: ApiView для возврата списка заказов
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/payment/{id}/:
+    post:
+      operationId: api_payment_create
+      description: ApiView для оплаты
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/product/{id}/:
+    get:
+      operationId: api_product_retrieve
+      description: ApiView для возврата детальная информация о товаре
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/product/{id}/reviews/:
+    get:
+      operationId: api_product_reviews_list
+      description: ApiView для возврата и создания отзывов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewProduct'
+          description: ''
+    post:
+      operationId: api_product_reviews_create
+      description: ApiView для возврата и создания отзывов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReviewProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReviewProduct'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewProduct'
+          description: ''
+  /api/products/limited/:
+    get:
+      operationId: api_products_limited_retrieve
+      description: ApiView для возврата лимитированных товаров
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/products/popular/:
+    get:
+      operationId: api_products_popular_retrieve
+      description: ApiView для возврата популярных товаров
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/profile/:
+    get:
+      operationId: api_profile_retrieve
+      description: ApiView для отображения и изменения профиля
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    post:
+      operationId: api_profile_create
+      description: ApiView для отображения и изменения профиля
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/profile/avatar/:
+    get:
+      operationId: api_profile_avatar_retrieve
+      description: ApiView для изменения аватарки
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAvatar'
+          description: ''
+    post:
+      operationId: api_profile_avatar_create
+      description: ApiView для изменения аватарки
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAvatar'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserAvatar'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserAvatar'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAvatar'
+          description: ''
+    put:
+      operationId: api_profile_avatar_update
+      description: ApiView для изменения аватарки
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAvatar'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserAvatar'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserAvatar'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAvatar'
+          description: ''
+    patch:
+      operationId: api_profile_avatar_partial_update
+      description: ApiView для изменения аватарки
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAvatar'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAvatar'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAvatar'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAvatar'
+          description: ''
+  /api/profile/password/:
+    post:
+      operationId: api_profile_password_create
+      description: ApiView для изменения пароля
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/sales/:
+    get:
+      operationId: api_sales_retrieve
+      description: ApiView для возврата скидок
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/tags/:
+    get:
+      operationId: api_tags_list
+      description: ApiView для отображения тегов
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+          description: ''
+    post:
+      operationId: api_tags_create
+      description: ApiView для отображения тегов
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Tag'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+  /api/tags/{id}/:
+    get:
+      operationId: api_tags_retrieve
+      description: ApiView для отображения тегов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this тэг.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+    put:
+      operationId: api_tags_update
+      description: ApiView для отображения тегов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this тэг.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Tag'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+    patch:
+      operationId: api_tags_partial_update
+      description: ApiView для отображения тегов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this тэг.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTag'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+    delete:
+      operationId: api_tags_destroy
+      description: ApiView для отображения тегов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this тэг.
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    ImageDepartments:
+      type: object
+      description: Сериалайзер изображения категории товара
+      properties:
+        src:
+          type: string
+          nullable: true
+          title: Путь
+          maxLength: 500
+        alt:
+          type: string
+          nullable: true
+          title: Описание
+          maxLength: 50
+    ImagesProducts:
+      type: object
+      description: Сериалайзер изображения товара
+      properties:
+        src:
+          type: string
+          format: uri
+          title: Фото товара
+        alt:
+          type: string
+          title: Описание
+          maxLength: 50
+      required:
+      - src
+    Order:
+      type: object
+      description: Сериалайзер заказа
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата создания
+        fullName:
+          type: string
+          nullable: true
+          title: Полное имя пользователя
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 100
+        phone:
+          type: string
+          nullable: true
+          title: Номер телефона
+          maxLength: 12
+        deliveryType:
+          type: string
+          nullable: true
+          title: Тип доставки
+          maxLength: 20
+        paymentType:
+          type: string
+          nullable: true
+          title: Тип оплаты
+          maxLength: 20
+        totalCost:
+          type: number
+          format: double
+          nullable: true
+          title: Полная стоимость
+        status:
+          type: string
+          description: |-
+            Возвращает статус заказа
+
+            :param order: Заказ
+            :type order: Order
+            :return: Статус заказа
+            :rtype: str
+          readOnly: true
+        city:
+          type: string
+          nullable: true
+          title: Город
+          maxLength: 50
+        address:
+          type: string
+          nullable: true
+          title: Адрес
+          maxLength: 100
+        products:
+          type: object
+          additionalProperties: {}
+          description: |-
+            Возвращает данные о товаре
+
+            :param order: Заказ
+            :type order: Order
+            :return: Данныне о товаре
+            :rtype: Dict
+          readOnly: true
+      required:
+      - createdAt
+      - id
+      - products
+      - status
+    PatchedOrder:
+      type: object
+      description: Сериалайзер заказа
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата создания
+        fullName:
+          type: string
+          nullable: true
+          title: Полное имя пользователя
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 100
+        phone:
+          type: string
+          nullable: true
+          title: Номер телефона
+          maxLength: 12
+        deliveryType:
+          type: string
+          nullable: true
+          title: Тип доставки
+          maxLength: 20
+        paymentType:
+          type: string
+          nullable: true
+          title: Тип оплаты
+          maxLength: 20
+        totalCost:
+          type: number
+          format: double
+          nullable: true
+          title: Полная стоимость
+        status:
+          type: string
+          description: |-
+            Возвращает статус заказа
+
+            :param order: Заказ
+            :type order: Order
+            :return: Статус заказа
+            :rtype: str
+          readOnly: true
+        city:
+          type: string
+          nullable: true
+          title: Город
+          maxLength: 50
+        address:
+          type: string
+          nullable: true
+          title: Адрес
+          maxLength: 100
+        products:
+          type: object
+          additionalProperties: {}
+          description: |-
+            Возвращает данные о товаре
+
+            :param order: Заказ
+            :type order: Order
+            :return: Данныне о товаре
+            :rtype: Dict
+          readOnly: true
+    PatchedTag:
+      type: object
+      description: Сериалайзер тэгов товара
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Тэг
+          maxLength: 100
+    PatchedUserAvatar:
+      type: object
+      description: Сериализатор модели UserAvatar
+      properties:
+        src:
+          type: string
+          format: uri
+          nullable: true
+          title: Аватар
+        alt:
+          type: string
+          nullable: true
+          title: Описание
+          maxLength: 50
+    Product:
+      type: object
+      description: Сериалайзер товара
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: integer
+          title: Категория
+        price:
+          type: number
+          format: double
+          title: Стоимость
+        count:
+          type: integer
+          description: |-
+            Возвращает количество товара
+
+            :param product: Товар
+            :type product: Product
+            :return: количество товара
+            :rtype: int
+          readOnly: true
+        date:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Создан
+        title:
+          type: string
+          title: Наименование
+          maxLength: 100
+        description:
+          type: string
+          title: Описание
+          maxLength: 500
+        fullDescription:
+          type: string
+          title: Полное описание
+          maxLength: 1000
+        freeDelivery:
+          type: boolean
+          title: Бесплатная доставка
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImagesProducts'
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          readOnly: true
+        reviews:
+          oneOf:
+          - type: object
+            additionalProperties: {}
+          - type: integer
+          description: |-
+            Возвращает отзывы или количество отзывов о товаре
+            в зависимости откуда был вызван сериалайзер
+
+            :param product: Товар
+            :type product: Product
+            :rtype: Dict | int
+          readOnly: true
+        specifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpecificationProduct'
+          readOnly: true
+      required:
+      - category
+      - count
+      - date
+      - description
+      - fullDescription
+      - id
+      - images
+      - price
+      - reviews
+      - specifications
+      - tags
+      - title
+    ProductCategory:
+      type: object
+      description: Сериалайзер категории товара
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          title: Категория товара
+          maxLength: 100
+        image:
+          allOf:
+          - $ref: '#/components/schemas/ImageDepartments'
+          readOnly: true
+        subcategories:
+          type: array
+          items:
+            type: integer
+      required:
+      - id
+      - image
+      - subcategories
+      - title
+    ReviewProduct:
+      type: object
+      description: Сериалайзер отзывов о товаре
+      properties:
+        author:
+          type: string
+          title: Автор
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          maxLength: 100
+        text:
+          type: string
+          title: Текст отзыва
+          maxLength: 500
+        rate:
+          type: integer
+          title: Оценка
+        date:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Дата создания
+      required:
+      - author
+      - date
+      - email
+      - rate
+      - text
+    SpecificationProduct:
+      type: object
+      description: Сериалайзер спецификации товара
+      properties:
+        name:
+          type: string
+          title: Название
+          maxLength: 100
+        value:
+          type: string
+          title: Значение
+          maxLength: 100
+      required:
+      - name
+      - value
+    Tag:
+      type: object
+      description: Сериалайзер тэгов товара
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Тэг
+          maxLength: 100
+      required:
+      - id
+      - name
+    User:
+      type: object
+      description: Сериалайзер для модели UserProfile
+      properties:
+        fullName:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        phone:
+          type: string
+          description: Возвращает телефон пользователя
+          readOnly: true
+        avatar:
+          type: object
+          additionalProperties: {}
+          description: Возвращает данные аватара пользователя
+          readOnly: true
+      required:
+      - avatar
+      - fullName
+      - phone
+    UserAvatar:
+      type: object
+      description: Сериализатор модели UserAvatar
+      properties:
+        src:
+          type: string
+          format: uri
+          nullable: true
+          title: Аватар
+        alt:
+          type: string
+          nullable: true
+          title: Описание
+          maxLength: 50
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
