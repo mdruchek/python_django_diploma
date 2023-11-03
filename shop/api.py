@@ -396,7 +396,6 @@ class OrderDetailApiView(RetrieveUpdateAPIView):
         Product.objects.bulk_update(products, ['count'])
         basket_obj = Basket.objects.get(user=request.user)
         basket_obj.productsinbaskets_set.all().delete()
-        basket_obj.delete()
         return Response(status=200)
 
 
