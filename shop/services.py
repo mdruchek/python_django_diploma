@@ -156,22 +156,7 @@ def get_list_products_in_basket(request: Request) -> Tuple[Basket | None, QueryS
         basket_session = Basket.objects.get(id=basket_id)
 
         if not basket_created:
-            products_in_basket_session = basket_session.products.all()
-            products_in_basket_user = basket_user.products.all()
-
-            for product in products_in_basket_session:
-
-                if product not in products_in_basket_user:
-
-                    basket_user.products.add(
-                        product,
-                        through_defaults={
-                                    'count': product.productsinbaskets_set.get(basket=basket_session,
-                                                                               product=product).count
-                        }
-                    )
-
-            basket = basket_user
+            basket = combine_two_buckets(basket_user, basket_session)
 
         else:
             basket_session.user = request.user
